@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "board-management-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/boardManagement/BoardManagementWebPart.js",
+          "manifest": "./src/webparts/boardManagement/BoardManagementWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "BoardManagementWebPartStrings": "lib/webparts/boardManagement/loc/{locale}.js"
+  }
+}

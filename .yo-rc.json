@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "14.15.1",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.9.1"
+    },
+    "version": "1.17.1",
+    "libraryName": "teams-tab",
+    "libraryId": "a769feb7-7563-4cce-9017-53bcf0bc9145",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "teams-tab",
+    "solutionShortDescription": "teams-tab description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
