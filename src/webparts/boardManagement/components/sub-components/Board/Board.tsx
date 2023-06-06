@@ -19,15 +19,17 @@ const Board = (props: any) => {
                 </p>
                 <div
                     className={styles.board_header_title_more}
-                    onClick={() => setShowDropdown(true)}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setShowDropdown(true);
+                    }}
                 >
                     <MoreHorizontal />
                     {showDropdown && (
-                        <Dropdown
-                            class={styles.board_dropdown}
-                            onClose={() => setShowDropdown(false)}
-                        >
-                            <p onClick={() => props.removeBoard()}>Delete Board</p>
+                        <Dropdown class={styles.board_dropdown} onClose={() => setShowDropdown(false)}>
+                            <p onClick={() => props.removeBoard()}>
+                                Delete Board
+                            </p>
                         </Dropdown>
                     )}
                 </div>

@@ -7,7 +7,7 @@
 import * as React from 'react';
 import styles from './BoardManagement.module.scss';
 import { IBoardManagementProps } from './IBoardManagementProps';
-import { escape } from '@microsoft/sp-lodash-subset';
+// import { escape } from '@microsoft/sp-lodash-subset';
 import Board from './sub-components/Board/Board';
 import Editable from './sub-components/Editable/Editable';
 
@@ -114,9 +114,9 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 
 	return (
 		<div className={styles.app}>
-			<div className={styles.app_navbar}>
+			{/* <div className={styles.app_navbar}>
 				<h2>Hello, {escape(props.userDisplayName)}!</h2>
-			</div>
+			</div> */}
 			<div className={`${styles.app_boards_container}`}>
 				<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
 					{boards.map((item: { id: any; }) => (

@@ -5,9 +5,7 @@ import * as React from 'react';
 import styles from './Dropdown.module.scss';
 
 const Dropdown = (props: any) => {
-
     const dropdownRef: any = React.useRef();
-
     const handleClick = (event: { target: any; }) => {
         if (dropdownRef && !dropdownRef?.current?.contains(event?.target) && props.onClose)
             props.onClose();
@@ -15,7 +13,6 @@ const Dropdown = (props: any) => {
 
     React.useEffect(() => {
         document.addEventListener("click", handleClick);
-
         return () => {
             document.removeEventListener("click", handleClick);
         };
