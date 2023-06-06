@@ -14,142 +14,130 @@ import Editable from './sub-components/Editable/Editable';
 
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
-	const [boards, setBoards] = React.useState([
-		{
-			id: (Date.now() + Math.random() * 2).toString(),
-			title: "To Do",
-			cards: [
-				{
-					id: (Date.now() + Math.random()).toString(),
-					title: "Card 1",
-					tasks: [],
-					labels: [
-						{
-							text: "frontend",
-							color: 'blue'
-						}
-					],
-					desc: "hliudh dhuwqhydo dhqawhdo",
-					date: "",
-				},
-				{
-					id: (Date.now() + Math.random()).toString(),
-					title: "Card 2",
-					tasks: [],
-					labels: [
-						{
-							text: "backend",
-							color: 'green'
-						}
-					],
-					desc: "hliudh dhuwqhydo dhqawhdo",
-					date: "",
-				}
-			]
-		}
-	])
+	const [boards, setBoards] = React.useState(
+		JSON.parse(localStorage.getItem("board-management")) || []
+	);
 
-	const [targetCard, setTargetCard] = React.useState({ cId: "", bId: "" });
+	const [targetCard, setTargetCard] = React.useState({ bId: "", cId: "" });
 
-	const addCard = (title: any, bId: any) => {
-		const card: any = {
-			id: Date.now() + Math.random(),
-			title,
-			labels: [],
-			tasks: [],
-			date: "",
-			desc: ""
-		}
+	const addboardHandler = (name: string) => {
+		const tempBoards = [...boards];
+		tempBoards.push({
+			id: Date.now() + Math.random() * 2,
+			title: name,
+			cards: [],
+		});
+		setBoards(tempBoards);
+	};
 
-		const index = boards.findIndex((item: { id: any; }) => item.id === bId);
+	const removeBoard = (id: string) => {
+		const index = boards.findIndex((item: { id: string; }) => item.id === id);
 		if (index < 0) return;
 
 		const tempBoards = [...boards];
-		tempBoards[index].cards.push(card);
+		tempBoards.splice(index, 1);
 		setBoards(tempBoards);
-	}
+	};
 
-	const removeCard = (cardId: any, bId: any) => {
-		const bIndex = boards.findIndex((item: { id: any; }) => item.id === bId);
-		if (bIndex < 0) return;
-		const cIndex = boards[bIndex].cards.findIndex((item: { id: any; }) => item.id === cardId);
-		if (cIndex < 0) return;
+	const addCardHandler = (id: string, title: string) => {
+		const index = boards.findIndex((item: { id: any }) => item.id === id);
+		if (index < 0) return;
 
 		const tempBoards = [...boards];
-		tempBoards[bIndex].cards.splice(cIndex, 1);
+		tempBoards[index].cards.push({
+			id: Date.now() + Math.random() * 2,
+			title,
+			labels: [],
+			date: "",
+			tasks: [],
+		});
 		setBoards(tempBoards);
-	}
+	};
 
-	const addBoard = (title: any) => {
-		setBoards([
-			...boards,
-			{
-				id: (Date.now() + Math.random()).toString(),
-				title,
-				cards: []
-			}
-		])
-	}
+	const removeCard = (bid: string, cid: string) => {
+		const index = boards.findIndex((item: { id: string; }) => item.id === bid);
+		if (index < 0) return;
 
-	const removeBoard = (bId: any) => {
-		const tempBoards = boards.filter(item => item.id !== bId);
+		const tempBoards = [...boards];
+		const cards = tempBoards[index].cards;
+
+		const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cid);
+		if (cardIndex < 0) return;
+
+		cards.splice(cardIndex, 1);
 		setBoards(tempBoards);
-	}
+	};
 
-	const handleDragEnter = (cId: string, bId: string) => {
+	const dragEntered = (bId: string, cId: string) => {
 		if (targetCard.cId === cId) return;
-		setTargetCard({ cId, bId });
+		setTargetCard({ bId, cId });
 	}
 
-	const handleDragEnd = (cId: string, bId: string) => {
+	const dragEnded = (bId: string, cId: string) => {
 		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
 
-		s_boardIndex = boards.findIndex((item) => item.id === bId);
+		s_boardIndex = boards.findIndex((item: { id: string; }) => item.id === bId);
 		if (s_boardIndex < 0) return;
 
-		s_cardIndex = boards[s_boardIndex]?.cards?.findIndex((item) => item.id === cId);
+		s_cardIndex = boards[s_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === cId);
 		if (s_cardIndex < 0) return;
 
-		t_boardIndex = boards.findIndex((item) => item.id === targetCard.bId);
+		t_boardIndex = boards.findIndex((item: { id: string; }) => item.id === targetCard.bId);
 		if (t_boardIndex < 0) return;
 
-		t_cardIndex = boards[t_boardIndex]?.cards?.findIndex((item) => item.id === targetCard.cId);
+		t_cardIndex = boards[t_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === targetCard.cId);
 		if (t_cardIndex < 0) return;
 
 		const tempBoards = [...boards];
 		const sourceCard = tempBoards[s_boardIndex].cards[s_cardIndex];
 		tempBoards[s_boardIndex].cards.splice(s_cardIndex, 1);
 		tempBoards[t_boardIndex].cards.splice(t_cardIndex, 0, sourceCard);
-		console.log(tempBoards)
 		setBoards(tempBoards);
 
 		setTargetCard({ bId: "", cId: "" });
 	}
+
+	const updateCard = (bId: string, cId: string, card: any) => {
+		const index = boards.findIndex((item: { id: string; }) => item.id === bId);
+		if (index < 0) return;
+		const tempBoards = [...boards];
+		const cards = tempBoards[index].cards;
+		const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cId);
+		if (cardIndex < 0) return;
+		tempBoards[index].cards[cardIndex] = card;
+		setBoards(tempBoards);
+	};
+
+	React.useEffect(() => {
+		localStorage.setItem("board-management", JSON.stringify(boards));
+	}, [boards]);
 
 	return (
 		<div className={styles.app}>
 			<div className={styles.app_navbar}>
 				<h2>Hello, {escape(props.userDisplayName)}!</h2>
 			</div>
-			<div className={`${styles.app_outer} ${styles.custom_scroll}`}>
-				<div className={`${styles.app_boards}`}>
-					{boards.map((item) => (
+			<div className={`${styles.app_boards_container}`}>
+				<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
+					{boards.map((item: { id: any; }) => (
 						<Board
 							key={item.id}
 							board={item}
-							removeBoard={removeBoard}
-							addCard={addCard}
+							addCard={addCardHandler}
+							removeBoard={() => removeBoard(item.id)}
 							removeCard={removeCard}
-							handleDragEnter={handleDragEnter}
-							handleDragEnd={handleDragEnd}
+							dragEnded={dragEnded}
+							dragEntered={dragEntered}
+							updateCard={updateCard}
 						/>
 					))}
-					<div className={styles.app_boards_board}>
+					<div className={styles.app_boards_last}>
 						<Editable
 							displayClass={styles.app_boards_board_add}
-							text="Add Board"
+							editClass={styles.app_boards_add_board_edit}
 							placeholder="Enter Board Title"
-							onSubmit={(value: any) => addBoard(value)}
+							text="Add Board"
+							onSubmit={addboardHandler}
 						/>
 					</div>
 				</div>

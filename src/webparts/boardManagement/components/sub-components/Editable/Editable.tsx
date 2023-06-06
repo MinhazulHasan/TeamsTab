@@ -5,35 +5,44 @@ import { X } from 'react-feather';
 import styles from './Editable.module.scss';
 
 const Editable = (props: any) => {
-    const [showEdit, setShowEdit] = React.useState(false);
-    const [inputValue, setInputValue] = React.useState(props.text || "");
+    const [isEditable, setIsEditable] = React.useState(false);
+    const [inputText, setInputText] = React.useState(props.defaultValue || "");
+
+    const submission = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        if (inputText && props.onSubmit) {
+            setInputText("");
+            props.onSubmit(inputText);
+        }
+        setIsEditable(false);
+    };
+
     return (
         <div className={styles.editable}>
-            {
-                showEdit ?
-                    <form
-                        className={`${styles.editable_edit} ${props.editClass || ""}`}
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            if (props.onSubmit) props.onSubmit(inputValue);
-                            setShowEdit(false);
-                            setInputValue("");
-                        }}
-                    >
-                        <input
-                            autoFocus
-                            type="text"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder={props.placeholder || "Enter Item"}
-                        />
-                        <div className={styles.editable_edit_footer}>
-                            <button type='submit'>{props.buttonText || 'Add'}</button>
-                            <X onClick={()=>setShowEdit(false)} />
-                        </div>
-                    </form>
-                    :
-                    <p className={`${styles.editable_display} ${props.displayClass || ""}`} onClick={()=>setShowEdit(true)}>{props.text || 'Add Item'}</p>
+            {isEditable ?
+                <form
+                    className={`${styles.editable_edit} ${props.editClass || ""}`}
+                    onSubmit={submission}
+                >
+                    <input
+                        type="text"
+                        value={inputText}
+                        placeholder={props.placeholder || props.text}
+                        onChange={(event) => setInputText(event.target.value)}
+                        autoFocus
+                    />
+                    <div className={styles.editable_edit_footer}>
+                        <button type='submit'>{props.buttonText || 'Add'}</button>
+                        <X onClick={() => setIsEditable(false)} className={styles.closeIcon} />
+                    </div>
+                </form>
+                :
+                <p
+                    className={`${styles.editable_display} ${props.displayClass ? props.displayClass : ""}`}
+                    onClick={() => setIsEditable(true)}
+                >
+                    {props.text}
+                </p>
             }
         </div>
     );

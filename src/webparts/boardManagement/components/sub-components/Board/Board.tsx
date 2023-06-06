@@ -11,42 +11,49 @@ const Board = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);
     return (
         <div className={styles.board}>
-            <div className={styles.board_top}>
-                <p className={styles.board_top_title}>
-                    To Do &nbsp;<span>2</span>
+
+            <div className={styles.board_header}>
+                <p className={styles.board_header_title}>
+                    {props.board?.title}
+                    <span>{props.board?.cards?.length || 0}</span>
                 </p>
                 <div
-                    className={styles.board_top_more}
+                    className={styles.board_header_title_more}
                     onClick={() => setShowDropdown(true)}
                 >
                     <MoreHorizontal />
                     {showDropdown && (
-                        <Dropdown onClose={() => setShowDropdown(false)}>
-                            <div className={styles.board_dropdown}>
-                                <p onClick={() => props.removeBoard(props.board?.id)}>Delete Board</p>
-                            </div>
+                        <Dropdown
+                            class={styles.board_dropdown}
+                            onClose={() => setShowDropdown(false)}
+                        >
+                            <p onClick={() => props.removeBoard()}>Delete Board</p>
                         </Dropdown>
                     )}
                 </div>
             </div>
+
             <div className={`${styles.board_cards} ${styles.custom_scroll}`}>
-                {props.board?.cards?.map((item: { id: any; }) => (
+                {props.board?.cards?.map((item: any) => (
                     <Card
                         key={item.id}
                         card={item}
-                        removeCard={props.removeCard}
                         boardId={props.board.id}
-                        handleDragEnter={props.handleDragEnter}
-						handleDragEnd={props.handleDragEnd}
+                        removeCard={props.removeCard}
+                        dragEntered={props.dragEntered}
+                        dragEnded={props.dragEnded}
+                        updateCard={props.updateCard}
                     />
                 ))}
                 <Editable
-                    displayClass={styles.board_cards_add}
-                    text="Add Card"
+                    displayClass={styles.board_add_card}
+                    editClass={styles.board_add_card_edit}
+                    text="+ Add Card"
                     placeholder="Enter card title"
-                    onSubmit={(value: any) => props.addCard(value, props.board?.id)}
+                    onSubmit={(value: any) => props.addCard(props.board?.id, value)}
                 />
             </div>
+
         </div>
     );
 };

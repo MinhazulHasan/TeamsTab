@@ -40,8 +40,8 @@ const Card = (props: any) => {
             <div
                 className={styles.card}
                 draggable
-                onDragEnter={() => props.handleDragEnter(props.card.id, props.boardId)}
-                onDragEnd={() => props.handleDragEnd(props.card.id, props.boardId)}
+                onDragEnd={() => props.dragEnded(props.boardId, id)}
+                onDragEnter={() => props.dragEntered(props.boardId, id)}
                 onClick={() => setShowModal(true)}
             >
                 <div className={styles.card_top}>

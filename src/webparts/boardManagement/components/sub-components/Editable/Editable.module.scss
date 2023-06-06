@@ -38,9 +38,13 @@
     svg {
         cursor: pointer;
     }
-}
 
-.editable_edit_footer {
+    .closeIcon {
+        cursor: pointer;
+        height: 24px;
+        width: 24px;
+    }
+
     button {
         outline: none;
         border: none;

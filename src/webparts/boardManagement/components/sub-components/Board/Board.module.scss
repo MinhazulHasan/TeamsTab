@@ -9,78 +9,27 @@
     gap: 20px;
 }
 
-.board_top {
+.board_header {
     display: flex;
-}
-
-.board_top_more {
-    position: relative;
-    cursor: pointer;
-}
-
-.board_dropdown {
-    background-color: #fff;
-    width: 130px;
-    padding: 10px;
-    border-radius: 3px;
-    box-shadow: 1px 0 20px rgba(0, 0, 0, 0.05);
-}
-
-.board_dropdown {
-    p {
-        cursor: pointer;
-    }
-}
-
-.board_top_title {
-    flex: 1;
-    display: flex;
+    justify-content: space-between;
     align-items: center;
+}
+
+.board_header_title {
     font-weight: bold;
-}
-
-.board_top_title {
-    span {
-        color: gray;
-    }
-}
-
-.board_cards {
-    flex: 1;
-    height: 100%;
-    background-color: #f8f8f8;
+    font-size: 1rem;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    overflow-y: auto;
-}
+    gap: 5px;
+    align-items: center;
 
-.board_cards_add {
-    background-color: #fff;
-    width: 100%;
-    border-radius: 5px;
-    box-shadow: 1px 2px 0 1px rgba(0, 0, 0, 0.15);
-}
-
-.board_cards_add {
-    &:hover {
-        box-shadow: 1px 2px 0 1px #ccc;
+    span {
+        color: rgb(145, 145, 145);
     }
 }
 
-.custom_scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom_scroll::-webkit-scrollbar-thumb {
-    border-radius: 30px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    &:hover {
-        background-color: #ccc;
-    }
+.board_header_title_more {
+    cursor: pointer;
+    position: relative;
 }
 
 .board_dropdown {
@@ -93,4 +42,44 @@
         border-bottom: 1px solid #f8f8f8;
         cursor: pointer;
     }
+}
+
+.board_cards {
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.custom_scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom_scroll::-webkit-scrollbar-thumb {
+    border-radius: 30px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+
+    &:hover {
+        background-color: #ccc;
+    }
+}
+
+.board_add_card {
+    background-color: #fff;
+    color: #000;
+    border-radius: 10px;
+    box-shadow: 1px 1px 0 1px rgba(0, 0, 0, 0.12);
+    width: 100%;
+    text-align: center;
+}
+
+.board_add_card_edit {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 10px;
 }
