@@ -131,7 +131,7 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 			<div className={styles.app_navbar}>
 				<h2>Hello, {escape(props.userDisplayName)}!</h2>
 			</div>
-			<div className={`${styles.app_outer} ${styles['custom-scroll']}`}>
+			<div className={`${styles.app_outer} ${styles.custom_scroll}`}>
 				<div className={`${styles.app_boards}`}>
 					{boards.map((item) => (
 						<Board

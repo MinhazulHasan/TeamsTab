@@ -29,7 +29,7 @@ const Board = (props: any) => {
                     )}
                 </div>
             </div>
-            <div className={`${styles.board_cards} ${styles['custom-scroll']}`}>
+            <div className={`${styles.board_cards} ${styles.custom_scroll}`}>
                 {props.board?.cards?.map((item: { id: any; }) => (
                     <Card
                         key={item.id}

@@ -6,7 +6,7 @@ import styles from './Editable.module.scss';
 
 const Editable = (props: any) => {
     const [showEdit, setShowEdit] = React.useState(false);
-    const [inputValue, setInputValue] = React.useState("");
+    const [inputValue, setInputValue] = React.useState(props.text || "");
     return (
         <div className={styles.editable}>
             {

@@ -4,55 +4,89 @@
 import * as React from 'react';
 import styles from './Card.module.scss';
 import { CheckSquare, Clock, MoreHorizontal } from 'react-feather';
-import Chip from '../Chip/Chip';
 import Dropdown from '../Dropdown/Dropdown';
+import CardInfo from './CardInfo/CardInfo';
 
 const Card = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);
+    const [showModal, setShowModal] = React.useState(false);
+
+    const { id, title, date, tasks, labels } = props.card;
+
+    const formatDate = (value: string | number | Date) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (!date) return "";
+
+        const months = ["Jan", "Feb", "Mar", "Aprl", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",];
+
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        return day + " " + month;
+    };
+
+
     return (
-        <div
-            className={styles.card}
-            draggable
-            onDragEnter={()=>props.handleDragEnter(props.card.id, props.boardId)}
-            onDragEnd={()=>props.handleDragEnd(props.card.id, props.boardId)}
-        >
-            <div className={styles.card_top}>
-                <div className={styles.card_top_labels}>
-                    {props.card?.labels?.map((item: { text: string; color: string; }, index: any) =>
-                        <Chip key={index} text={item.text} color={item.color} close />
+        <>
+            {
+                showModal &&
+                <CardInfo
+                    onClose={() => setShowModal(false)}
+                    card={props.card}
+                    boardId={props.boardId}
+                    updateCard={props.updateCard}
+                />
+            }
+            <div
+                className={styles.card}
+                draggable
+                onDragEnter={() => props.handleDragEnter(props.card.id, props.boardId)}
+                onDragEnd={() => props.handleDragEnd(props.card.id, props.boardId)}
+                onClick={() => setShowModal(true)}
+            >
+                <div className={styles.card_top}>
+                    <div className={styles.card_top_labels}>
+                        {labels?.map((item: { text: string; color: string; }, index: any) => (
+                            <label key={index} style={{ backgroundColor: item.color }}>
+                                {item.text}
+                            </label>
+                        ))}
+                    </div>
+
+                    <div
+                        className={styles.card_top_more}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            setShowDropdown(true);
+                        }}
+                    >
+                        <MoreHorizontal />
+                        {showDropdown && (
+                            <Dropdown className={styles.board_dropdown} onClose={() => setShowDropdown(false)}>
+                                <p onClick={() => props.removeCard(props.boardId, id)}>
+                                    Delete Card
+                                </p>
+                            </Dropdown>
+                        )}
+                    </div>
+                </div>
+                <div className={styles.card_title}>{title}</div>
+                <div className={styles.card_footer}>
+                    {date && (
+                        <p className={styles.card_footer_item}>
+                            <Clock className={styles.card_footer_icon} />
+                            {formatDate(date)}
+                        </p>
+                    )}
+                    {tasks && tasks?.length > 0 && (
+                        <p className={styles.card_footer_item}>
+                            <CheckSquare className={styles.card_footer_icon} />
+                            {tasks?.filter((item: any) => item.completed)?.length}/{tasks?.length}
+                        </p>
                     )}
                 </div>
-
-                <div
-                    className={styles.card_top_more}
-                    onClick={() => setShowDropdown(true)}
-                >
-                    <MoreHorizontal />
-                    {showDropdown && (
-                        <Dropdown onClose={() => setShowDropdown(false)}>
-                            <div className={styles.card_dropdown}>
-                                <p onClick={()=>props.removeCard(props.card.id, props.boardId)}>Delete Cart</p>
-                            </div>
-                        </Dropdown>
-                    )}
-                </div>
-
-
             </div>
-            <div className={styles.card_title}>
-                {props.card?.title}
-            </div>
-            <div className={styles.card_footer}>
-                {
-                    props.card?.date &&
-                    <p><Clock />&nbsp;{props.card?.date}</p>
-                }
-                <p>
-                    <CheckSquare />&nbsp;
-                    1/4
-                </p>
-            </div>
-        </div>
+        </>
     );
 };
 
