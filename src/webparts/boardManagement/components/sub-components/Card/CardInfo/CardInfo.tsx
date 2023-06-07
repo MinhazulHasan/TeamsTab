@@ -187,9 +187,7 @@ const CardInfo = (props: any) => {
                                 <input
                                     type="checkbox"
                                     defaultChecked={item.completed}
-                                    onChange={(event) =>
-                                        updateTask(item.id, event.target.checked)
-                                    }
+                                    onChange={(event) => updateTask(item.id, event.target.checked)}
                                 />
                                 <p className={item.completed ? `${styles.completed}` : ""}>{item.text}</p>
                                 <Trash onClick={() => removeTask(item.id)} />
