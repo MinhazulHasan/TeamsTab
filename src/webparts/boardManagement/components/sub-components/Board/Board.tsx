@@ -14,8 +14,8 @@ const Board = (props: any) => {
 
             <div className={styles.board_header}>
                 <p className={styles.board_header_title}>
-                    {props.board?.title}
-                    <span>{props.board?.cards?.length || 0}</span>
+                    {props.board?.name}
+                    <span> - {props.board?.cards?.length || 0}</span>
                 </p>
                 <div
                     className={styles.board_header_title_more}

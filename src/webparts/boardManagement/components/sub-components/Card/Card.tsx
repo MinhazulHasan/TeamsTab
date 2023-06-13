@@ -11,7 +11,7 @@ const Card = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
 
-    const { id, title, date, tasks, labels } = props.card;
+    const { id, name, date, tasks, labels } = props.card;
 
     const formatDate = (value: string | number | Date) => {
         if (!value) return "";
@@ -70,7 +70,7 @@ const Card = (props: any) => {
                         )}
                     </div>
                 </div>
-                <div className={styles.card_title}>{title}</div>
+                <div className={styles.card_title}>{name}</div>
                 <div className={styles.card_footer}>
                     {date && (
                         <p className={styles.card_footer_item}>

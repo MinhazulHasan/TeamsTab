@@ -1,18 +1,20 @@
 .editable {
     width: 100%;
-    margin-bottom: 1.5rem;
 }
 
 .editable_display {
     background-color: #f8f8f8;
-    border-radius: 3px;
+    border-radius: 5px;
     padding: 10px;
     text-align: center;
     cursor: default;
-    font-weight: bold;
+    font-weight: 500;
+    width: 92%;
+    cursor: pointer;
 
     &:hover {
-        background-color: #ccc;
+        background-color: rgba(255, 255, 255, 0.6);
+        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -22,7 +24,7 @@
     gap: 10px;
 
     input {
-        border-radius: 3px;
+        border-radius: 5px;
         outline: none;
         border: 1px solid #1370ec;
         padding: 10px;
