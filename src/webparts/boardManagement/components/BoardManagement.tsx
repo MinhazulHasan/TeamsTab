@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable prefer-const */
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -5,6 +6,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import styles from './BoardManagement.module.scss';
 import { IBoardManagementProps } from './IBoardManagementProps';
 // import { escape } from '@microsoft/sp-lodash-subset';
@@ -14,9 +16,7 @@ import Editable from './sub-components/Editable/Editable';
 
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
-	const [boards, setBoards] = React.useState(
-		JSON.parse(localStorage.getItem("board-management")) || []
-	);
+	const [boards, setBoards] = useState([]);  // JSON.parse(localStorage.getItem("board-management")) || []
 
 	const [targetCard, setTargetCard] = React.useState({ bId: "", cId: "" });
 
@@ -108,9 +108,18 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		setBoards(tempBoards);
 	};
 
-	React.useEffect(() => {
+	const getTrelloData = async () => {
+		const res = await fetch('https://api.trello.com/1/boards/s0IHODed/lists?key=c81f41b37b2e6b3eccc14dd61dc458e8&token=ATTA4dc97d9045ba763bd8379f25562f444a3089df6c6edfc8ccc93f9a053135769365C046BA&cards=all');
+		const data = await res.json();
+		setBoards(data);
+		console.log(data);
+	};
+
+	useEffect(() => {
+		console.log(JSON.parse(localStorage.getItem("board-management")))
+		getTrelloData();
 		localStorage.setItem("board-management", JSON.stringify(boards));
-	}, [boards]);
+	}, []);
 
 	return (
 		<div className={styles.app}>
