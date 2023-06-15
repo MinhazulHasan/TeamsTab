@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable prefer-const */
 /* eslint-disable no-constant-condition */
@@ -6,20 +7,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './BoardManagement.module.scss';
-import { IBoardManagementProps } from './IBoardManagementProps';
-// import { escape } from '@microsoft/sp-lodash-subset';
+import { IBoardManagementProps, JiraIssue } from './IBoardManagementProps';
 import Board from './sub-components/Board/Board';
 import Editable from './sub-components/Editable/Editable';
-
-
+import axios from 'axios';
+// import { escape } from '@microsoft/sp-lodash-subset';
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
-	const [boards, setBoards] = useState([]);  // JSON.parse(localStorage.getItem("board-management")) || []
-
-	const [targetCard, setTargetCard] = React.useState({ bId: "", cId: "" });
-
+	const [boards, setBoards] = useState([]);
+	const [targetCard, setTargetCard] = React.useState({ bId: "", card: {id: ""} });
 	const addboardHandler = (name: string) => {
 		const tempBoards = [...boards];
 		tempBoards.push({
@@ -39,27 +37,65 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		setBoards(tempBoards);
 	};
 
-	const addCardHandler = (id: string, title: string) => {
-		const index = boards.findIndex((item: { id: any }) => item.id === id);
-		if (index < 0) return;
-
-		const tempBoards = [...boards];
-		tempBoards[index].cards.push({
-			id: Date.now() + Math.random() * 2,
-			title,
-			labels: [],
-			date: "",
-			tasks: [],
-		});
-		setBoards(tempBoards);
+	const addCardHandler = async (issueTitle: string, title: string) => {
+		const inputData = {
+			fields: {
+				project: {
+					key: "JIRATEAMS"
+				},
+				summary: title,
+				description: title,
+				issuetype: {
+					name: "Task"
+				}
+			}
+		}
+		const config = {
+			method: 'post',
+			url: 'https://proxy-skip-app-production.up.railway.app/',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			data: JSON.stringify(inputData)
+		};
+		try {
+			const response = await axios.request(config);
+			if (response.data.self) {
+				const newIssue = {
+					id: response.data.id,
+					key: response.data.key,
+					self: response.data.self,
+					fields: {
+						project: {
+							key: "JIRATEAMS"
+						},
+						summary: title,
+						description: title,
+						issuetype: {
+							name: "Task"
+						}
+					},
+				}
+				let newBoard: {issueTitle: string; issue: any[]}[] = [...boards];
+				newBoard[0].issue.push(newIssue);
+				console.log(newBoard)
+				setBoards(newBoard);
+			}
+			else {
+				alert("Error in creating card");
+			}
+		}
+		catch (error) {
+			console.error("error:", error);
+		}
 	};
 
 	const removeCard = (bid: string, cid: string) => {
-		const index = boards.findIndex((item: { id: string; }) => item.id === bid);
+		const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
 		if (index < 0) return;
 
 		const tempBoards = [...boards];
-		const cards = tempBoards[index].cards;
+		const cards = tempBoards[index].issue;
 
 		const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cid);
 		if (cardIndex < 0) return;
@@ -68,33 +104,34 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		setBoards(tempBoards);
 	};
 
-	const dragEntered = (bId: string, cId: string) => {
-		if (targetCard.cId === cId) return;
-		setTargetCard({ bId, cId });
+	const dragEntered = (bId: string, card: {id: string}) => {
+		if (targetCard.card.id === card.id) return;
+		setTargetCard({ bId, card });
+		console.log("Drag Enter:\n",{ bId, card })
 	}
 
-	const dragEnded = (bId: string, cId: string) => {
+	const dragEnded = (bId: string, card: {id: string}) => {
 		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
 
-		s_boardIndex = boards.findIndex((item: { id: string; }) => item.id === bId);
+		s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
 		if (s_boardIndex < 0) return;
 
-		s_cardIndex = boards[s_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === cId);
+		s_cardIndex = boards[s_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === card.id);
 		if (s_cardIndex < 0) return;
 
-		t_boardIndex = boards.findIndex((item: { id: string; }) => item.id === targetCard.bId);
+		t_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === targetCard.bId);
 		if (t_boardIndex < 0) return;
 
-		t_cardIndex = boards[t_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === targetCard.cId);
+		t_cardIndex = boards[t_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === targetCard.card.id);
 		if (t_cardIndex < 0) return;
 
 		const tempBoards = [...boards];
-		const sourceCard = tempBoards[s_boardIndex].cards[s_cardIndex];
-		tempBoards[s_boardIndex].cards.splice(s_cardIndex, 1);
-		tempBoards[t_boardIndex].cards.splice(t_cardIndex, 0, sourceCard);
+		const sourceCard = tempBoards[s_boardIndex].issue[s_cardIndex];
+		tempBoards[s_boardIndex].issue.splice(s_cardIndex, 1);
+		tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
 		setBoards(tempBoards);
 
-		setTargetCard({ bId: "", cId: "" });
+		setTargetCard({ bId: "", card: {id: ""} });
 	}
 
 	const updateCard = (bId: string, cId: string, card: any) => {
@@ -108,16 +145,44 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		setBoards(tempBoards);
 	};
 
-	const getTrelloData = async () => {
-		const res = await fetch('https://api.trello.com/1/boards/s0IHODed/lists?key=c81f41b37b2e6b3eccc14dd61dc458e8&token=ATTA4dc97d9045ba763bd8379f25562f444a3089df6c6edfc8ccc93f9a053135769365C046BA&cards=all');
-		const data = await res.json();
-		setBoards(data);
-		console.log(data);
-	};
+	const getJiraData = useCallback(async () => {
+		try {
+			const res = await axios('https://proxy-skip-app-production.up.railway.app');
+			let jiraIssue = res.data?.issues?.map((issue: any) => {
+				return { issueId: issue.fields?.status?.id, issueTitle: issue.fields?.status?.name, issue: issue }
+			})
+			// jiraIssue = [...new Set(jiraIssue.issueTitle)];
+
+			const convertedJiraIssue: JiraIssue[] = [];
+
+			jiraIssue.forEach((item: { issueId: string; issueTitle: string; issue: object; }) => {
+				const existingIssue = convertedJiraIssue.find(
+					(convertedItem) => (convertedItem.issueTitle === item.issueTitle && convertedItem.issueId === item.issueId)
+				);
+
+				if (existingIssue) {
+					existingIssue.issue.push(item.issue);
+				} else {
+					convertedJiraIssue.push({
+						issueId: item.issueId,
+						issueTitle: item.issueTitle,
+						issue: [item.issue],
+					});
+				}
+			});
+			console.log(convertedJiraIssue)
+			setBoards(convertedJiraIssue);
+		}
+		catch (error) {
+			console.log("Error = ", error);
+		}
+
+	}, []);
+
+
 
 	useEffect(() => {
-		console.log(JSON.parse(localStorage.getItem("board-management")))
-		getTrelloData();
+		getJiraData();
 		localStorage.setItem("board-management", JSON.stringify(boards));
 	}, []);
 

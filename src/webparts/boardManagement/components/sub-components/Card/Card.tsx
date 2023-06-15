@@ -11,7 +11,8 @@ const Card = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
 
-    const { id, name, date, tasks, labels } = props.card;
+    const { card } = props;
+    const { date, tasks, labels } = props.card;
 
     const formatDate = (value: string | number | Date) => {
         if (!value) return "";
@@ -40,9 +41,9 @@ const Card = (props: any) => {
             <div
                 className={styles.card}
                 draggable
-                onDragEnd={() => props.dragEnded(props.boardId, id)}
-                onDragEnter={() => props.dragEntered(props.boardId, id)}
-                onClick={() => setShowModal(true)}
+                onDragEnd={() => props.dragEnded(props.boardId, card)}
+                onDragEnter={() => props.dragEntered(props.boardId, card)}
+                // onClick={() => setShowModal(true)}
             >
                 <div className={styles.card_top}>
                     <div className={styles.card_top_labels}>
@@ -63,14 +64,15 @@ const Card = (props: any) => {
                         <MoreHorizontal />
                         {showDropdown && (
                             <Dropdown className={styles.board_dropdown} onClose={() => setShowDropdown(false)}>
-                                <p onClick={() => props.removeCard(props.boardId, id)}>
+                                <p onClick={() => props.removeCard(props.boardId, card.id)}>
                                     Delete Card
                                 </p>
                             </Dropdown>
                         )}
                     </div>
                 </div>
-                <div className={styles.card_title}>{name}</div>
+                <div className={styles.card_title}>{card?.fields?.summary}</div>
+                <div style={{color: 'gray'}}>{card?.key}</div>
                 <div className={styles.card_footer}>
                     {date && (
                         <p className={styles.card_footer_item}>
