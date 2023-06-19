@@ -13,11 +13,15 @@ import { IBoardManagementProps, JiraIssue } from './IBoardManagementProps';
 import Board from './sub-components/Board/Board';
 import Editable from './sub-components/Editable/Editable';
 import axios from 'axios';
+import Credential from './sub-components/Credential/Credential';
 // import { escape } from '@microsoft/sp-lodash-subset';
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
+
+	const [hasCredential, setHasCredential] = useState(false);
+
 	const [boards, setBoards] = useState([]);
-	const [targetCard, setTargetCard] = React.useState({ bId: "", card: {id: ""} });
+	const [targetCard, setTargetCard] = React.useState({ bId: "", card: { id: "" } });
 	const addboardHandler = (name: string) => {
 		const tempBoards = [...boards];
 		tempBoards.push({
@@ -76,7 +80,7 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 						}
 					},
 				}
-				let newBoard: {issueTitle: string; issue: any[]}[] = [...boards];
+				let newBoard: { issueTitle: string; issue: any[] }[] = [...boards];
 				newBoard[0].issue.push(newIssue);
 				console.log(newBoard)
 				setBoards(newBoard);
@@ -104,13 +108,13 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		setBoards(tempBoards);
 	};
 
-	const dragEntered = (bId: string, card: {id: string}) => {
+	const dragEntered = (bId: string, card: { id: string }) => {
 		if (targetCard.card.id === card.id) return;
 		setTargetCard({ bId, card });
-		console.log("Drag Enter:\n",{ bId, card })
+		console.log("Drag Enter:\n", { bId, card })
 	}
 
-	const dragEnded = (bId: string, card: {id: string}) => {
+	const dragEnded = (bId: string, card: { id: string }) => {
 		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
 
 		s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
@@ -131,7 +135,7 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 		tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
 		setBoards(tempBoards);
 
-		setTargetCard({ bId: "", card: {id: ""} });
+		setTargetCard({ bId: "", card: { id: "" } });
 	}
 
 	const updateCard = (bId: string, cId: string, card: any) => {
@@ -180,7 +184,6 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 	}, []);
 
 
-
 	useEffect(() => {
 		getJiraData();
 		localStorage.setItem("board-management", JSON.stringify(boards));
@@ -188,34 +191,39 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 
 	return (
 		<div className={styles.app}>
+			{
+				hasCredential ?
+					<div className={`${styles.app_boards_container}`}>
+						<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
+							{boards.map((item: { id: any; }) => (
+								<Board
+									key={item.id}
+									board={item}
+									addCard={addCardHandler}
+									removeBoard={() => removeBoard(item.id)}
+									removeCard={removeCard}
+									dragEnded={dragEnded}
+									dragEntered={dragEntered}
+									updateCard={updateCard}
+								/>
+							))}
+							<div className={styles.app_boards_last}>
+								<Editable
+									displayClass={styles.app_boards_board_add}
+									editClass={styles.app_boards_add_board_edit}
+									placeholder="Enter Board Title"
+									text="Add Board"
+									onSubmit={addboardHandler}
+								/>
+							</div>
+						</div>
+					</div>
+					:
+					<Credential setHasCredential={setHasCredential} />
+			}
 			{/* <div className={styles.app_navbar}>
 				<h2>Hello, {escape(props.userDisplayName)}!</h2>
 			</div> */}
-			<div className={`${styles.app_boards_container}`}>
-				<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
-					{boards.map((item: { id: any; }) => (
-						<Board
-							key={item.id}
-							board={item}
-							addCard={addCardHandler}
-							removeBoard={() => removeBoard(item.id)}
-							removeCard={removeCard}
-							dragEnded={dragEnded}
-							dragEntered={dragEntered}
-							updateCard={updateCard}
-						/>
-					))}
-					<div className={styles.app_boards_last}>
-						<Editable
-							displayClass={styles.app_boards_board_add}
-							editClass={styles.app_boards_add_board_edit}
-							placeholder="Enter Board Title"
-							text="Add Board"
-							onSubmit={addboardHandler}
-						/>
-					</div>
-				</div>
-			</div>
 		</div>
 	);
 };

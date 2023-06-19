@@ -43,7 +43,7 @@ const Card = (props: any) => {
                 draggable
                 onDragEnd={() => props.dragEnded(props.boardId, card)}
                 onDragEnter={() => props.dragEntered(props.boardId, card)}
-                // onClick={() => setShowModal(true)}
+                onClick={() => setShowModal(true)}
             >
                 <div className={styles.card_top}>
                     <div className={styles.card_top_labels}>

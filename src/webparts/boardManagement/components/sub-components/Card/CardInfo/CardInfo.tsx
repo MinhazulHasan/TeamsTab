@@ -8,6 +8,7 @@ import { Calendar, CheckSquare, List, Tag, Trash, Type, X, } from "react-feather
 import Editable from '../../Editable/Editable';
 
 const CardInfo = (props: any) => {
+    console.log(props)
     const colors: Array<string> = ["#a8193d", "#4fcc25", "#1ebffa", "#8da377", "#9975bd", "#cf61a1", "#240959"];
 
     const [selectedColor, setSelectedColor] = React.useState(null);
@@ -92,8 +93,8 @@ const CardInfo = (props: any) => {
                     </div>
                     <div className={styles.cardinfo_box_body}>
                         <Editable
-                            defaultValue={values.title}
-                            text={values.title}
+                            defaultValue={values.fields.summary}
+                            text={values.fields.summary}
                             placeholder="Enter Title"
                             onSubmit={updateTitle}
                         />
@@ -107,8 +108,8 @@ const CardInfo = (props: any) => {
                     </div>
                     <div className={styles.cardinfo_box_body}>
                         <Editable
-                            defaultValue={values.desc}
-                            text={values.desc || "Add a Description"}
+                            defaultValue={values.fields.description}
+                            text={values.fields.description || "Add a Description"}
                             placeholder="Enter description"
                             onSubmit={updateDesc}
                         />
@@ -123,7 +124,7 @@ const CardInfo = (props: any) => {
                     <div className={styles.cardinfo_box_body}>
                         <input
                             type="date"
-                            defaultValue={values.date}
+                            defaultValue={values.fields.updated.split('T')[0]}
                             min={new Date().toISOString().substr(0, 10)}
                             onChange={(event) => updateDate(event.target.value)}
                         />
@@ -170,7 +171,7 @@ const CardInfo = (props: any) => {
                 <div className={styles.cardinfo_box}>
                     <div className={styles.cardinfo_box_title}>
                         <CheckSquare />
-                        <p>Tasks</p>
+                        <p>Sub-Tasks</p>
                     </div>
                     <div className={styles.cardinfo_box_progress_bar}>
                         <div
@@ -182,7 +183,7 @@ const CardInfo = (props: any) => {
                         />
                     </div>
                     <div className={styles.cardinfo_box_task_list}>
-                        {values.tasks?.map((item: { id: React.Key; completed: boolean; text: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; }) => (
+                        {values.features?.subtasks?.map((item: { id: React.Key; completed: boolean; text: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; }) => (
                             <div key={item.id} className={styles.cardinfo_box_task_checkbox}>
                                 <input
                                     type="checkbox"
