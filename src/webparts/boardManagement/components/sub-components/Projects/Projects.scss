@@ -1,0 +1,231 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,700");
+@import url("https://fonts.googleapis.com/css?family=Barlow:300,400,500,600,700&display=swap");
+
+$font: "Barlow", sans-serif;
+
+.cards {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    .card {
+        height: 400px;
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0px 20px 30px -10px rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+        min-width: 260px;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+        transition: all 0.4s ease;
+        margin: 0 10px;
+
+        &:before {
+            height: 190px;
+            width: calc(100% + 100px);
+            content: "";
+            position: absolute;
+            background-image: linear-gradient(to top, #4481eb 0%, #04befe 100%);
+            border-radius: 4px 4px 100% 100%;
+            transition: all 0.4s ease-out;
+            top: 0;
+        }
+
+        article {
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+
+            h2 {
+                color: white;
+                margin: 0;
+                padding: 40px 20px 10px 20px;
+                font-weight: 500;
+                font-size: 24px;
+                letter-spacing: 0.5px;
+            }
+
+            .title {
+                color: white;
+                padding: 10px 20px;
+                letter-spacing: 0.8px;
+                transition: all 0.4s ease;
+            }
+
+            .desc {
+                padding: 10px 30px;
+                font-size: 14px;
+                text-align: center;
+                line-height: 24px;
+                color: #666;
+                height: 50px;
+                transition: all 0.4s ease-out;
+            }
+
+            .pic {
+                width: 120px;
+                height: 120px;
+                overflow: hidden;
+                border-radius: 100%;
+                margin: 20px 0;
+                box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.3);
+                transition: all 0.6s ease;
+
+                img {
+                    width: 100%;
+                    -webkit-filter: grayscale(100%);
+                    filter: grayscale(100%);
+                }
+            }
+        }
+
+        .actions {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: white;
+            //bottom: 4px;
+            z-index: 1;
+
+            .btn {
+                border: 0;
+                background-color: transparent;
+                box-sizing: border-box;
+                // width: calc(50% - 1px);
+                width: 100%;
+                height: 36px;
+                margin: 0;
+                text-transform: uppercase;
+                font-size: 10px;
+                transition: all 0.6s ease-in-out;
+                cursor: pointer;
+                color: #4481eb;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: 500;
+                font-family: $font;
+                letter-spacing: 0.5px;
+                background: rgba(68, 129, 235, 0.08);
+
+                span {
+                    z-index: 1;
+                    opacity: 1;
+                    transition: all 0.4s ease-in-out;
+                }
+
+                .icon {
+                    width: 10px;
+                    opacity: 0;
+                    position: absolute;
+                    transition: all 0.2s ease-in-out;
+                }
+
+                &:before {
+                    content: "";
+                    width: 100%;
+                    height: 0%;
+                    position: absolute;
+                    background: #4481eb;
+                    transition: all 0.4s ease;
+                    bottom: 0;
+                    opacity: 0.2;
+                }
+
+                &:focus {
+                    outline: 0;
+                }
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.5);
+
+                    span {
+                        opacity: 0;
+                        transition: all 0.3s ease-in-out;
+                    }
+
+                    .icon {
+                        width: 22px;
+                        opacity: 1;
+                        transition: all 0.4s ease-in-out;
+                    }
+
+                    &:nth-child(3) {
+                        .icon {
+                            width: 18px;
+                        }
+                    }
+
+                    &:before {
+                        height: 100%;
+                    }
+                }
+
+                &.clicked {
+
+                    span {
+                        display: none;
+                    }
+
+                    .icon {
+                        width: 22px;
+                        opacity: 1;
+                        animation: icon 0.5s ease forwards;
+
+                        @keyframes icon {
+                            0% {
+                                width: 22px;
+                            }
+
+                            50% {
+                                width: 40px;
+                            }
+
+                            100% {
+                                width: 22px;
+                            }
+                        }
+                    }
+
+                    &:before {
+                        opacity: 0.3;
+                        height: 100%;
+                    }
+                }
+            }
+        }
+
+        &:hover {
+            transform: translateY(-10px);
+            box-shadow: 0px 5px 10px -5px rgba(0, 0, 0, 0.3);
+
+            &:before {
+                height: 100%;
+                border-radius: 4px;
+            }
+
+            .desc {
+                color: white;
+            }
+
+            .pic {
+                box-shadow: 0px 0px 0px 8px rgba(255, 255, 255, 0.3);
+
+                img {
+                    -webkit-filter: grayscale(0%);
+                    filter: grayscale(0%);
+                }
+            }
+        }
+    }
+}

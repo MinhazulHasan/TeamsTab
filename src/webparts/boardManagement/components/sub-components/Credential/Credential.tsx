@@ -6,11 +6,11 @@ import styles from './Credential.module.scss';
 // import loginImg from '../../../assets/jira.png';
 
 const Credential = (props: any) => {
-    const [username, setUsername] = React.useState("");
-	const [password, setPassword] = React.useState("");
+    const [email, setEmail] = React.useState("");
+	const [token, setToken] = React.useState("");
 
     const onSubmit = () => {
-        if(username === "" || password === "") return;
+        if(email === "" || token === "") return;
         else {
             props.setHasCredential(true);
         }
@@ -24,10 +24,11 @@ const Credential = (props: any) => {
                     <div className={styles.formcontainer}>
                     <hr />
                     <div className={styles.container}>
-                        <label htmlFor='username'><strong>Username</strong></label>
-                        <input onChange={(e)=>setUsername(e.target.value)} className={styles.input_field} type="text" placeholder="Enter Username" name="uname" id='username' required />
-                        <label htmlFor='password'><strong>Password</strong></label>
-                        <input onChange={(e)=>setPassword(e.target.value)} className={styles.input_field} type="password" placeholder="Enter Password" name="psw" id='password' required />
+                        <label htmlFor='email'><strong>Email</strong></label>
+                        <input onChange={(e)=>setEmail(e.target.value)} className={styles.input_field} type="email" placeholder="Enter Email" name="email" id='email' required />
+                        
+                        <label htmlFor='token'><strong>API Token</strong></label>
+                        <input onChange={(e)=>setToken(e.target.value)} className={styles.input_field} type="text" placeholder="Enter Token" name="token" id='token' required />
                         </div>
                             <button className={styles.submit_btn} onClick={onSubmit}>Login</button>
                         </div>
