@@ -64,7 +64,7 @@ const Card = (props: any) => {
                         <MoreHorizontal />
                         {showDropdown && (
                             <Dropdown className={styles.board_dropdown} onClose={() => setShowDropdown(false)}>
-                                <p onClick={() => props.removeCard(props.boardId, card.id)}>
+                                <p onClick={() => props.removeCard(props.boardId, card.id, card.key)}>
                                     Delete Card
                                 </p>
                             </Dropdown>

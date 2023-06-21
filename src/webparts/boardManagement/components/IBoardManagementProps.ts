@@ -7,9 +7,3 @@ export interface IBoardManagementProps {
   userDisplayName: string;
   context: any;
 }
-
-export interface JiraIssue {
-	issueId: string;
-	issueTitle: string;
-	issue: object[];
-}
