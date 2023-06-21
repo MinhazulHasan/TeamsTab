@@ -50,22 +50,24 @@ const SingleProject = (props: any) => {
 			showCancelButton: true,
 			confirmButtonText: "Delete",
 		}).then(async (result) => {
-			const index = boards.findIndex((item: { issueId: string; }) => item.issueId === id);
-			if (index < 0) return;
+			if (result.isConfirmed) {
+				const index = boards.findIndex((item: { issueId: string; }) => item.issueId === id);
+				if (index < 0) return;
 
-			const tempBoards = [...boards];
-			tempBoards.splice(index, 1);
-			setBoards(tempBoards);
+				const tempBoards = [...boards];
+				tempBoards.splice(index, 1);
+				setBoards(tempBoards);
 
-			ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Board Deleted Successfully!');
+				ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Board Deleted Successfully!');
+			}
 		});
 	};
 
 	const addCardHandler = async (issueTitle: string, title: string) => {
 		let data = JSON.stringify({
-			"email": "imran.khan@brainstation23.com",
-			"url": "https://pm23.atlassian.net/",
-			"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
+			"email": props.email,
+			"url": props.siteUrl,
+			"token": props.token,
 			"summary": title,
 			"key": props.boardKey,
 		});
@@ -124,9 +126,9 @@ const SingleProject = (props: any) => {
 		}).then(async (result) => {
 			if (result.isConfirmed) {
 				const data = JSON.stringify({
-					"email": "imran.khan@brainstation23.com",
-					"url": "https://pm23.atlassian.net/",
-					"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
+					"email": props.email,
+					"url": props.siteUrl,
+					"token": props.token,
 					"key": cardKey,
 				});
 
@@ -175,9 +177,9 @@ const SingleProject = (props: any) => {
 		console.log(targetCard?.card?.fields?.status?.name);
 
 		const data = JSON.stringify({
-			"email": "imran.khan@brainstation23.com",
-			"url": "https://pm23.atlassian.net/",
-			"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
+			"email": props.email,
+			"url": props.siteUrl,
+			"token": props.token,
 			"key": card.id,
 			"status": targetCard?.card?.fields?.status?.name,
 		});
@@ -241,9 +243,9 @@ const SingleProject = (props: any) => {
 		try {
 			const data = JSON.stringify({
 				"key": props.boardKey,
-				"email": "imran.khan@brainstation23.com",
-				"url": "https://pm23.atlassian.net/",
-				"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE"
+				"email": props.email,
+				"url": props.siteUrl,
+				"token": props.token
 			});
 
 
@@ -288,7 +290,7 @@ const SingleProject = (props: any) => {
 			setBoards(convertedJiraIssue);
 		}
 		catch (error) {
-			console.log("Error = ", error);
+			ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
 		}
 
 	}, []);

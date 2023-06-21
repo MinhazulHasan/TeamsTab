@@ -7,6 +7,7 @@
 import * as React from 'react';
 import './Projects.scss';
 import axios from 'axios';
+import { ToastMessage } from '../../../assets/Toast/toast';
 
 const Projects = (props: any) => {
 
@@ -24,9 +25,9 @@ const Projects = (props: any) => {
             // const token = localStorage.getItem("token");
 
             const data = JSON.stringify({
-                "email": "imran.khan@brainstation23.com",
-                "url": "https://pm23.atlassian.net/",
-                "token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE"
+                "email": props.email,
+                "url": props.siteUrl,
+                "token": props.token
             });
 
             const config = {
@@ -39,10 +40,15 @@ const Projects = (props: any) => {
             };
 
             const res = await axios.request(config);
-            setProjects(res.data);
+            if(res.data.length !== 0) {
+                setProjects(res.data);
+            } else {
+                ToastMessage.toastWithConfirmation("error", "Projects Not Found", "Please Create a Project in JIRA or Re-Generate your JIRA Token");
+            }
         }
         catch (error) {
-            console.log("Error = ", error);
+            console.log("ERROR===",error)
+            ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
         }
 
     }, []);
