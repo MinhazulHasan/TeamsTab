@@ -21,9 +21,9 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 	const [boardKey, setBoardKey] = useState("");
 	const [page, setPage] = React.useState({ Projects: true, SingleProject: false })
 
-	const [email, setEmail] = React.useState("");
-    const [siteUrl, setSiteUrl] = React.useState("");
-	const [token, setToken] = React.useState("");
+	const [email, setEmail] = React.useState("imran.khan@brainstation23.com");
+    const [siteUrl, setSiteUrl] = React.useState("https://pm23.atlassian.net/");
+	const [token, setToken] = React.useState("ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE");
 
 	useEffect(() => {
 		// getJiraData();
@@ -35,7 +35,7 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 				hasCredential ?
 				<>
 					<div className={`${styles.app_boards_container} ${styles.custom_scroll}`}>
-						{page.Projects && <Projects setPage={setPage} setBoardKey={(e : any) => setBoardKey( e )} email={email} siteUrl={siteUrl} token={token} />}
+						{page.Projects && <Projects setPage={setPage} setBoardKey={setBoardKey} email={email} siteUrl={siteUrl} token={token} />}
 						{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} />}
 					</div>
 				</>

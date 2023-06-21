@@ -14,6 +14,8 @@ import { JiraIssue } from './ISingleProject';
 import Board from '../Board/Board';
 import Editable from '../Editable/Editable';
 import Loader from '../../../assets/Loader/Loader';
+import { ToastMessage } from '../../../assets/Toast/toast';
+import Swal from 'sweetalert2';
 
 const SingleProject = (props: any) => {
 	const [boards, setBoards] = useState([]);
@@ -41,19 +43,29 @@ const SingleProject = (props: any) => {
 	};
 
 	const removeBoard = (id: string) => {
-		const index = boards.findIndex((item: { id: string; }) => item.id === id);
-		if (index < 0) return;
+		Swal.fire({
+			icon: "question",
+			title: "Are you sure to delete the Board?",
+			toast: true,
+			showCancelButton: true,
+			confirmButtonText: "Delete",
+		}).then(async (result) => {
+			const index = boards.findIndex((item: { issueId: string; }) => item.issueId === id);
+			if (index < 0) return;
 
-		const tempBoards = [...boards];
-		tempBoards.splice(index, 1);
-		setBoards(tempBoards);
+			const tempBoards = [...boards];
+			tempBoards.splice(index, 1);
+			setBoards(tempBoards);
+
+			ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Board Deleted Successfully!');
+		});
 	};
 
 	const addCardHandler = async (issueTitle: string, title: string) => {
 		let data = JSON.stringify({
 			"email": "imran.khan@brainstation23.com",
 			"url": "https://pm23.atlassian.net/",
-			"token": "ATATT3xFfGF0RbLyeeO5NwyZmpcLmIlSPfhV5ZnLfGYPB5M1lQ4niXFelllcHG1J7mrxsJJn2ctXTNSiWpI0gd6tJQPuBGwvpDjyQrfpCi0g6RsjQlcRqzsDcEcojrM5IOJPxTnGKjTRsDXc8Rpp88yavyKlOGI58e0e8kz261TQ5h0Fv7SSHCU=8E46BD24",
+			"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
 			"summary": title,
 			"key": props.boardKey,
 		});
@@ -90,56 +102,68 @@ const SingleProject = (props: any) => {
 				newBoard[0].issue.push(newIssue);
 				console.log(newBoard)
 				setBoards(newBoard);
+
+				ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Issue Created Successfully!');
 			}
 			else {
-				alert("Error in creating card");
+				ToastMessage.toastWithConfirmation('error', 'Action Faield...', 'Error in Creating Card!');
 			}
 		}
 		catch (error) {
-			console.error("error:", error);
+			ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 		}
 	};
 
 	const removeCard = async (bid: string, cid: string, cardKey: any) => {
-		console.log(cardKey)
+		Swal.fire({
+			icon: "question",
+			title: "Are you sure to delete the Issue?",
+			toast: true,
+			showCancelButton: true,
+			confirmButtonText: "Delete",
+		}).then(async (result) => {
+			if (result.isConfirmed) {
+				const data = JSON.stringify({
+					"email": "imran.khan@brainstation23.com",
+					"url": "https://pm23.atlassian.net/",
+					"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
+					"key": cardKey,
+				});
 
-		const data = JSON.stringify({
-			"email": "imran.khan@brainstation23.com",
-			"url": "https://pm23.atlassian.net/",
-			"token": "ATATT3xFfGF0RbLyeeO5NwyZmpcLmIlSPfhV5ZnLfGYPB5M1lQ4niXFelllcHG1J7mrxsJJn2ctXTNSiWpI0gd6tJQPuBGwvpDjyQrfpCi0g6RsjQlcRqzsDcEcojrM5IOJPxTnGKjTRsDXc8Rpp88yavyKlOGI58e0e8kz261TQ5h0Fv7SSHCU=8E46BD24",
-			"key": cardKey,
-		});
+				const config = {
+					method: 'DELETE',
+					url: 'https://proxy-skip-app-production.up.railway.app/delete-issue',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					data: data
+				};
 
-		const config = {
-			method: 'DELETE',
-			url: 'https://proxy-skip-app-production.up.railway.app/delete-issue',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			data: data
-		};
+				try {
+					const res = await axios.request(config);
+					console.log("Delete:", res.data);
+					const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
+					if (index < 0) return;
 
-		try {
-			const res = await axios.request(config);
-			console.log("Delete:", res.data);
-			const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
-			if (index < 0) return;
+					const tempBoards = [...boards];
+					const cards = tempBoards[index].issue;
 
-			const tempBoards = [...boards];
-			const cards = tempBoards[index].issue;
+					const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cid);
+					if (cardIndex < 0) return;
 
-			const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cid);
-			if (cardIndex < 0) return;
+					cards.splice(cardIndex, 1);
+					setBoards(tempBoards);
 
-			cards.splice(cardIndex, 1);
-			setBoards(tempBoards);
-		}
-		catch (error) {
-			console.log(error);
-		}
+					ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Deleted Successfully!');
+				}
+				catch (error) {
+					ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
+				}
+			}
+		})
 	};
 
-	const dragEntered = (bId: string, card: { id: string, fields: {status: { name: string }} }) => {
+	const dragEntered = (bId: string, card: { id: string, fields: { status: { name: string } } }) => {
 		if (targetCard.card.id === card.id) return;
 		setTargetCard({ bId, card });
 		console.log("Drag Enter:\n", { bId, card })
@@ -147,13 +171,14 @@ const SingleProject = (props: any) => {
 
 	const dragEnded = async (bId: string, card: { id: string, key: string }) => {
 
+		console.log(card.id);
 		console.log(targetCard?.card?.fields?.status?.name);
 
 		const data = JSON.stringify({
 			"email": "imran.khan@brainstation23.com",
 			"url": "https://pm23.atlassian.net/",
-			"token": "ATATT3xFfGF0RbLyeeO5NwyZmpcLmIlSPfhV5ZnLfGYPB5M1lQ4niXFelllcHG1J7mrxsJJn2ctXTNSiWpI0gd6tJQPuBGwvpDjyQrfpCi0g6RsjQlcRqzsDcEcojrM5IOJPxTnGKjTRsDXc8Rpp88yavyKlOGI58e0e8kz261TQ5h0Fv7SSHCU=8E46BD24",
-			"key": card.key,
+			"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE",
+			"key": card.id,
 			"status": targetCard?.card?.fields?.status?.name,
 		});
 
@@ -192,10 +217,11 @@ const SingleProject = (props: any) => {
 			tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
 			setBoards(tempBoards);
 
-			setTargetCard({ bId: "", card: { id: "", fields: {status: { name: "" }} } });
+			setTargetCard({ bId: "", card: { id: "", fields: { status: { name: "" } } } });
+			ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Moved successfully!');
 		}
 		catch (error) {
-			console.log(error)
+			ToastMessage.toastWithConfirmation('error', 'Action faield...', error);
 		}
 
 	}
@@ -217,10 +243,10 @@ const SingleProject = (props: any) => {
 				"key": props.boardKey,
 				"email": "imran.khan@brainstation23.com",
 				"url": "https://pm23.atlassian.net/",
-				"token": "ATATT3xFfGF0RbLyeeO5NwyZmpcLmIlSPfhV5ZnLfGYPB5M1lQ4niXFelllcHG1J7mrxsJJn2ctXTNSiWpI0gd6tJQPuBGwvpDjyQrfpCi0g6RsjQlcRqzsDcEcojrM5IOJPxTnGKjTRsDXc8Rpp88yavyKlOGI58e0e8kz261TQ5h0Fv7SSHCU=8E46BD24"
+				"token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE"
 			});
 
-			
+
 
 			const config = {
 				method: 'post',
@@ -238,15 +264,13 @@ const SingleProject = (props: any) => {
 				return { issueId: issue.fields?.status?.id, issueTitle: issue.fields?.status?.name, issue: issue }
 			})
 
-			
-			console.log("Jira Issue = ", jiraIssue);
 			// jiraIssue = [...new Set(jiraIssue.issueTitle)];
 
 			const convertedJiraIssue: JiraIssue[] = [];
 
 			jiraIssue.forEach((item: { issueId: string; issueTitle: string; issue: object; }) => {
 				const existingIssue = convertedJiraIssue.find(
-					(convertedItem) => (convertedItem.issueTitle === item.issueTitle && convertedItem.issueId === item.issueId)
+					(convertedItem) => (convertedItem.issueTitle === item.issueTitle)
 				);
 
 				if (existingIssue) {
@@ -275,12 +299,12 @@ const SingleProject = (props: any) => {
 
 	return ((boards.length === 0) ? <Loader /> :
 		<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
-			{boards.map((item: { id: any; }) => (
+			{boards.map((item: { issueId: string; }) => (
 				<Board
-					key={item.id}
+					key={item.issueId}
 					board={item}
 					addCard={addCardHandler}
-					removeBoard={() => removeBoard(item.id)}
+					removeBoard={() => removeBoard(item.issueId)}
 					removeCard={removeCard}
 					dragEnded={dragEnded}
 					dragEntered={dragEntered}

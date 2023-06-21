@@ -6,7 +6,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import * as React from 'react';
 import './Projects.scss';
-// import projects from './dummy';
 import axios from 'axios';
 
 const Projects = (props: any) => {
@@ -27,7 +26,7 @@ const Projects = (props: any) => {
             const data = JSON.stringify({
                 "email": "imran.khan@brainstation23.com",
                 "url": "https://pm23.atlassian.net/",
-                "token": "ATATT3xFfGF0RbLyeeO5NwyZmpcLmIlSPfhV5ZnLfGYPB5M1lQ4niXFelllcHG1J7mrxsJJn2ctXTNSiWpI0gd6tJQPuBGwvpDjyQrfpCi0g6RsjQlcRqzsDcEcojrM5IOJPxTnGKjTRsDXc8Rpp88yavyKlOGI58e0e8kz261TQ5h0Fv7SSHCU=8E46BD24"
+                "token": "ATATT3xFfGF0aDp4skiwrMwXow4PP2568y8SVuR2kMM_XFpvUHZCMRaPQtF959RPLW62LXGEgKOyUBUF3k-PWAJIty1pF4QNY4Z1F0dldJ93H3hprQp6j2t5SCyyobEk7jPlwnU1TvzEb90ykrFC8TZ04_lgLvKqVGyrh69TZ06Wap1nO_Z3dog=A747F0FE"
             });
 
             const config = {
@@ -39,7 +38,7 @@ const Projects = (props: any) => {
                 data: data
             };
 
-            const res =  await axios.request(config);
+            const res = await axios.request(config);
             setProjects(res.data);
         }
         catch (error) {
@@ -57,7 +56,7 @@ const Projects = (props: any) => {
             {
                 projects &&
                 projects.map((project: any) =>
-                    <div className="card">
+                    <div className="card"  onClick={() => viewProjectBtn(project?.key)}>
                         <span className="close"></span>
                         <span className="arrow"></span>
                         <article>
@@ -68,7 +67,7 @@ const Projects = (props: any) => {
                         </article>
                         <div className="actions">
                             {/* <button className="btn"><span>like</span><img className="icon" src="https://rafaelavlucas.github.io/assets/icons/misc/heart.svg" /></button> */}
-                            <button className="btn" onClick={() => viewProjectBtn(project?.key)}>
+                            <button className="btn">
                                 <span>View Project</span>
                                 <img className="icon" src="https://rafaelavlucas.github.io/assets/icons/misc/trade.svg" />
                             </button>
