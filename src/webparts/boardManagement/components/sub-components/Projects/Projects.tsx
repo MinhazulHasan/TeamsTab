@@ -9,18 +9,30 @@ import './Projects.scss';
 import axios from 'axios';
 import { ToastMessage } from '../../../assets/Toast/toast';
 import Loader from '../../../assets/Loader/Loader';
+// import { Version3Client } from 'jira.js';
 
 const Projects = (props: any) => {
 
     const [projects, setProjects] = React.useState([]);
-
-    const viewProjectBtn = (key: string) => {
+    // Show single project component
+    const viewSingleProjectPage = (key: string) => {
         props.setBoardKey(key);
         props.setPage({ Projects: false, SingleProject: true });
     };
-
+    // Get all projects from JIRA
     const getJiraProjects = React.useCallback(async () => {
         try {
+            // const client = new Version3Client({
+            //     host: props.siteUrl,
+            //     authentication: {
+            //         basic: {
+            //             email: props.email,
+            //             apiToken: props.apiToken,
+            //         },
+            //     },
+            // });
+            // const projects = await client.projects.getAllProjects();
+            // setProjects(projects);
             const data = JSON.stringify({
                 "email": props.email,
                 "url": props.siteUrl,
@@ -37,14 +49,10 @@ const Projects = (props: any) => {
             };
 
             const res = await axios.request(config);
-            if(res.data.length !== 0) {
-                setProjects(res.data);
-            } else {
-                ToastMessage.toastWithConfirmation("error", "Projects Not Found", "Please Create a Project in JIRA or Re-Generate your JIRA Token");
-            }
+            if (res.data.length !== 0)  setProjects(res.data);
+            else    ToastMessage.toastWithConfirmation("error", "Projects Not Found", "Please Create a Project in JIRA or Re-Generate your JIRA Token");
         }
         catch (error) {
-            console.log("ERROR===",error)
             ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
         }
 
@@ -58,7 +66,7 @@ const Projects = (props: any) => {
         <div className="cards">
             {
                 projects.map((project: any) =>
-                    <div className="card"  onClick={() => viewProjectBtn(project?.key)}>
+                    <div className="card" onClick={() => viewSingleProjectPage(project?.key)}>
                         <span className="close"></span>
                         <span className="arrow"></span>
                         <article>
@@ -68,7 +76,6 @@ const Projects = (props: any) => {
                             <div className="desc">{project?.name}</div>
                         </article>
                         <div className="actions">
-                            {/* <button className="btn"><span>like</span><img className="icon" src="https://rafaelavlucas.github.io/assets/icons/misc/heart.svg" /></button> */}
                             <button className="btn">
                                 <span>View Project</span>
                                 <img className="icon" src="https://rafaelavlucas.github.io/assets/icons/misc/trade.svg" />

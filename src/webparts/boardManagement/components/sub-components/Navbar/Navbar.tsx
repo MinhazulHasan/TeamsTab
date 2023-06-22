@@ -7,6 +7,7 @@ import './Navbar.scss';
 import Swal from 'sweetalert2';
 
 const Navbar = (props: any) => {
+    // LogOut and Removed all the credentials from local storage
     const handleLogOut = () => {
         Swal.fire({
 			icon: "question",

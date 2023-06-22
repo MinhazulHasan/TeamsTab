@@ -6,7 +6,7 @@ import styles from './Credential.module.scss';
 // import loginImg from '../../../assets/jira.png';
 
 const Credential = (props: any) => {
-
+    // Submit credential and store in local storage
     const onSubmit = () => {
         if(props.email === "" || props.siteUrl === "" || props.token === "") return;
         else {
@@ -16,7 +16,7 @@ const Credential = (props: any) => {
             props.setHasCredential(true);
         }
     }
-
+    // Credential checking function
     const checkCredential = (userEmail: string, userSiteUrl: string, userToken: string) => {
         if(userEmail === null || userSiteUrl === null || userToken === null) return;
         else {
@@ -26,15 +26,13 @@ const Credential = (props: any) => {
             props.setHasCredential(true);
         }
     }
-
+    // Each time check where credential is stored in local storage or not
     React.useEffect(() => {
         const userEmail = localStorage.getItem("email");
         const userSiteUrl = localStorage.getItem("siteUrl");
         const userToken = localStorage.getItem("token");
-
         checkCredential(userEmail, userSiteUrl, userToken);
     }, [])
-
 
     return (
         <Modal className={styles.credential_form_div}>

@@ -16,10 +16,10 @@ import Editable from '../Editable/Editable';
 import Loader from '../../../assets/Loader/Loader';
 import { ToastMessage } from '../../../assets/Toast/toast';
 import Swal from 'sweetalert2';
+// import { Version3Client } from 'jira.js';
 
 const SingleProject = (props: any) => {
 	const [boards, setBoards] = useState([]);
-
 	const [targetCard, setTargetCard] = React.useState({
 		bId: "",
 		card: {
@@ -31,7 +31,7 @@ const SingleProject = (props: any) => {
 			}
 		}
 	});
-
+	// Add Board (Row) in a Particular Jira Project
 	const addboardHandler = (name: string) => {
 		const tempBoards: any = [...boards];
 		tempBoards.push({
@@ -41,7 +41,7 @@ const SingleProject = (props: any) => {
 		});
 		setBoards(tempBoards);
 	};
-
+	// Remove Board from a Particular Jira Project
 	const removeBoard = (id: string) => {
 		Swal.fire({
 			icon: "question",
@@ -62,7 +62,7 @@ const SingleProject = (props: any) => {
 			}
 		});
 	};
-
+	// Add a Card (Issue) in a Particular Jira Board
 	const addCardHandler = async (issueTitle: string, title: string) => {
 		let data = JSON.stringify({
 			"email": props.email,
@@ -71,7 +71,6 @@ const SingleProject = (props: any) => {
 			"summary": title,
 			"key": props.boardKey,
 		});
-
 		let config = {
 			method: 'post',
 			maxBodyLength: Infinity,
@@ -103,7 +102,6 @@ const SingleProject = (props: any) => {
 				newBoard[0].issue.push(newIssue);
 				console.log(newBoard)
 				setBoards(newBoard);
-
 				ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Issue Created Successfully!');
 			}
 			else {
@@ -114,11 +112,10 @@ const SingleProject = (props: any) => {
 			ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 		}
 	};
-
+	// Remove a Card (Issue) from a Particular Jira Board
 	const removeCard = async (bid: string, cid: string, cardKey: any) => {
 		const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
 		if (index < 0) return;
-
 		Swal.fire({
 			icon: "question",
 			title: "Are you sure to delete the Issue?",
@@ -134,10 +131,25 @@ const SingleProject = (props: any) => {
 						'Authorization': `Basic ${props.token}`
 					}
 				};
-
 				try {
 					const res = await axios.request(config);
 					console.log("Delete:", res.data);
+
+					// const client = new Version3Client({
+					// 	host: props.siteUrl,
+					// 	authentication: {
+					// 		basic: {
+					// 			email: props.email,
+					// 			apiToken: props.token,
+					// 		},
+					// 	},
+					// });
+					
+					// // Delete the issue
+					// const deletionResponse = await client.issues.deleteIssue({
+					// 	issueIdOrKey: cid,
+					// });
+					// console.log(deletionResponse)
 
 					const tempBoards = [...boards];
 					const cards = tempBoards[index].issue;
@@ -151,24 +163,20 @@ const SingleProject = (props: any) => {
 					ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Deleted Successfully!');
 				}
 				catch (error) {
-					console.log("ERROR:",error)
+					console.log("ERROR:", error)
 					ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 				}
 			}
 		})
 	};
-
+	// Drag a Card (Issue) from one Board to Another Board and set the Target Card
 	const dragEntered = (bId: string, card: { id: string, fields: { status: { name: string } } }) => {
 		if (targetCard.card.id === card.id) return;
 		setTargetCard({ bId, card });
 		console.log("Drag Enter:\n", { bId, card })
 	}
-
+	// Drop the Card (Issue) from one Board to Another Board and change the status of the Card (Issue)
 	const dragEnded = async (bId: string, card: { id: string, key: string }) => {
-
-		console.log(card.id);
-		console.log(targetCard?.card?.fields?.status?.name);
-
 		const data = JSON.stringify({
 			"email": props.email,
 			"url": props.siteUrl,
@@ -176,7 +184,6 @@ const SingleProject = (props: any) => {
 			"key": card.id,
 			"status": targetCard?.card?.fields?.status?.name,
 		});
-
 		const config = {
 			method: 'post',
 			maxBodyLength: Infinity,
@@ -220,7 +227,7 @@ const SingleProject = (props: any) => {
 		}
 
 	}
-
+	// Update several features of a Card (Issue)
 	const updateCard = (bId: string, cId: string, card: any) => {
 		const index = boards.findIndex((item: { id: string; }) => item.id === bId);
 		if (index < 0) return;
@@ -231,7 +238,7 @@ const SingleProject = (props: any) => {
 		tempBoards[index].cards[cardIndex] = card;
 		setBoards(tempBoards);
 	};
-
+	// Get all the boards and Issues of a Jira Project
 	const getJiraData = useCallback(async () => {
 		try {
 			const data = JSON.stringify({
@@ -240,9 +247,6 @@ const SingleProject = (props: any) => {
 				"url": props.siteUrl,
 				"token": props.token
 			});
-
-
-
 			const config = {
 				method: 'post',
 				maxBodyLength: Infinity,
@@ -254,23 +258,15 @@ const SingleProject = (props: any) => {
 			};
 
 			const res = await axios.request(config);
-
 			let jiraIssue = res.data?.map((issue: any) => {
 				return { issueId: issue.fields?.status?.id, issueTitle: issue.fields?.status?.name, issue: issue }
-			})
-
-			// jiraIssue = [...new Set(jiraIssue.issueTitle)];
-
+			});
 			const convertedJiraIssue: JiraIssue[] = [];
-
 			jiraIssue.forEach((item: { issueId: string; issueTitle: string; issue: object; }) => {
-				const existingIssue = convertedJiraIssue.find(
-					(convertedItem) => (convertedItem.issueTitle === item.issueTitle)
-				);
+				const existingIssue = convertedJiraIssue.find((convertedItem) => (convertedItem.issueTitle === item.issueTitle));
 
-				if (existingIssue) {
-					existingIssue.issue.push(item.issue);
-				} else {
+				if (existingIssue) existingIssue.issue.push(item.issue);
+				else {
 					convertedJiraIssue.push({
 						issueId: item.issueId,
 						issueTitle: item.issueTitle,
@@ -278,8 +274,6 @@ const SingleProject = (props: any) => {
 					});
 				}
 			});
-
-			console.log("Converted Jira Issue = ", convertedJiraIssue);
 			setBoards(convertedJiraIssue);
 		}
 		catch (error) {
