@@ -8,10 +8,11 @@ import * as React from 'react';
 import './Projects.scss';
 import axios from 'axios';
 import { ToastMessage } from '../../../assets/Toast/toast';
+import Loader from '../../../assets/Loader/Loader';
 
 const Projects = (props: any) => {
 
-    const [projects, setProjects] = React.useState<any>();
+    const [projects, setProjects] = React.useState([]);
 
     const viewProjectBtn = (key: string) => {
         props.setBoardKey(key);
@@ -20,10 +21,6 @@ const Projects = (props: any) => {
 
     const getJiraProjects = React.useCallback(async () => {
         try {
-            // const email = localStorage.getItem("email");
-            // const siteUrl = localStorage.getItem("siteUrl");
-            // const token = localStorage.getItem("token");
-
             const data = JSON.stringify({
                 "email": props.email,
                 "url": props.siteUrl,
@@ -57,10 +54,9 @@ const Projects = (props: any) => {
         getJiraProjects();
     }, [])
 
-    return (
+    return ((projects.length === 0) ? <Loader /> :
         <div className="cards">
             {
-                projects &&
                 projects.map((project: any) =>
                     <div className="card"  onClick={() => viewProjectBtn(project?.key)}>
                         <span className="close"></span>
