@@ -35,8 +35,8 @@ const SingleProject = (props: any) => {
 	const addboardHandler = (name: string) => {
 		const tempBoards: any = [...boards];
 		tempBoards.push({
-			id: Date.now() + Math.random() * 2,
-			title: name,
+			issueId: Date.now() + Math.random() * 2,
+			issueTitle: name,
 			cards: [],
 		});
 		setBoards(tempBoards);
@@ -83,7 +83,6 @@ const SingleProject = (props: any) => {
 		};
 		try {
 			const response = await axios.request(config);
-			console.log("Create:", response.data);
 			if (response.data.self) {
 				const newIssue = {
 					id: response.data.id,
@@ -117,6 +116,9 @@ const SingleProject = (props: any) => {
 	};
 
 	const removeCard = async (bid: string, cid: string, cardKey: any) => {
+		const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
+		if (index < 0) return;
+
 		Swal.fire({
 			icon: "question",
 			title: "Are you sure to delete the Issue?",
@@ -125,27 +127,17 @@ const SingleProject = (props: any) => {
 			confirmButtonText: "Delete",
 		}).then(async (result) => {
 			if (result.isConfirmed) {
-				const data = JSON.stringify({
-					"email": props.email,
-					"url": props.siteUrl,
-					"token": props.token,
-					"key": cardKey,
-				});
-
-				const config = {
-					method: 'DELETE',
-					url: 'https://proxy-skip-app-production.up.railway.app/delete-issue',
+				let config = {
+					method: 'delete',
+					url: `${props.siteUrl}rest/api/2/issue/${cid}`,
 					headers: {
-						'Content-Type': 'application/json'
-					},
-					data: data
+						'Authorization': `Basic ${props.token}`
+					}
 				};
 
 				try {
 					const res = await axios.request(config);
 					console.log("Delete:", res.data);
-					const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
-					if (index < 0) return;
 
 					const tempBoards = [...boards];
 					const cards = tempBoards[index].issue;
@@ -159,6 +151,7 @@ const SingleProject = (props: any) => {
 					ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Deleted Successfully!');
 				}
 				catch (error) {
+					console.log("ERROR:",error)
 					ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 				}
 			}
