@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -26,7 +27,7 @@ const Card = (props: any) => {
         return day + " " + month;
     };
 
-
+    
     return (
         <>
             {
@@ -36,6 +37,10 @@ const Card = (props: any) => {
                     card={props.card}
                     boardId={props.boardId}
                     updateCard={props.updateCard}
+                    email={props.email}
+                    siteUrl={props.siteUrl}
+                    token={props.token}
+                    setShowModal={setShowModal}
                 />
             }
             <div
@@ -72,7 +77,7 @@ const Card = (props: any) => {
                     </div>
                 </div>
                 <div className={styles.card_title}>{card?.fields?.summary}</div>
-                <div style={{color: 'gray'}}>{card?.key}</div>
+                <div style={{ color: 'gray' }}>{card?.key}</div>
                 <div className={styles.card_footer}>
                     {date && (
                         <p className={styles.card_footer_item}>

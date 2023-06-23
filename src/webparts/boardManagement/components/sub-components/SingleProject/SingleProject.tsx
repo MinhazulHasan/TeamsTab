@@ -298,6 +298,9 @@ const SingleProject = (props: any) => {
 					dragEnded={dragEnded}
 					dragEntered={dragEntered}
 					updateCard={updateCard}
+					email={props.email}
+					siteUrl={props.siteUrl}
+					token={props.token}
 				/>
 			))}
 			<div className={styles.app_boards_last}>

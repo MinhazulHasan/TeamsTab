@@ -45,6 +45,9 @@ const Board = (props: any) => {
                         dragEntered={props.dragEntered}
                         dragEnded={props.dragEnded}
                         updateCard={props.updateCard}
+                        email={props.email}
+                        siteUrl={props.siteUrl}
+                        token={props.token}
                     />
                 ))}
                 <Editable
