@@ -20,37 +20,49 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 
 	const [hasCredential, setHasCredential] = useState(false);
 	const [boardKey, setBoardKey] = useState("");
-	const [page, setPage] = React.useState({ Projects: true, SingleProject: false });
+	const [page, setPage] = useState({ Projects: true, SingleProject: false });
 
-	const [email, setEmail] = React.useState("");
-    const [siteUrl, setSiteUrl] = React.useState("");
-	const [token, setToken] = React.useState("");
+	const [email, setEmail] = useState("");
+	const [siteUrl, setSiteUrl] = useState("");
+	const [token, setToken] = useState("");
+
+	const [isOnline, setIsOnline] = useState(navigator.onLine);
 
 	useEffect(() => {
-		// getJiraData();
+		function handleOnline() {
+			setIsOnline(true);
+		}
+
+		function handleOffline() {
+			setIsOnline(false);
+		}
+
+		window.addEventListener('online', handleOnline);
+		window.addEventListener('offline', handleOffline);
+		console.log("isOnline:", isOnline);
 	}, []);
 
 	return (
 		<div className={styles.app}>
 			{
 				hasCredential ?
-				<>
-					<Navbar currentUser={escape(props.userDisplayName)} setPage={setPage} setHasCredential={setHasCredential} />
-					<div className={`${styles.app_boards_container} ${styles.custom_scroll}`}>
-						{page.Projects && <Projects setPage={setPage} setBoardKey={setBoardKey} email={email} siteUrl={siteUrl} token={token} />}
-						{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} email={email} siteUrl={siteUrl} token={token} />}
-					</div>
-				</>
-				:
-				<Credential
-					setHasCredential={setHasCredential}
-					setEmail={setEmail}
-					setSiteUrl={setSiteUrl}
-					setToken={setToken}
-					email={email}
-					siteUrl={siteUrl}
-					token={token}
-				/>
+					<>
+						<Navbar currentUser={escape(props.userDisplayName)} setPage={setPage} setHasCredential={setHasCredential} />
+						<div className={`${styles.app_boards_container} ${styles.custom_scroll}`}>
+							{page.Projects && <Projects setPage={setPage} setBoardKey={setBoardKey} email={email} siteUrl={siteUrl} token={token} />}
+							{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} email={email} siteUrl={siteUrl} token={token} />}
+						</div>
+					</>
+					:
+					<Credential
+						setHasCredential={setHasCredential}
+						setEmail={setEmail}
+						setSiteUrl={setSiteUrl}
+						setToken={setToken}
+						email={email}
+						siteUrl={siteUrl}
+						token={token}
+					/>
 			}
 		</div>
 	);

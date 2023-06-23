@@ -16,7 +16,7 @@ import Editable from '../Editable/Editable';
 import Loader from '../../../assets/Loader/Loader';
 import { ToastMessage } from '../../../assets/Toast/toast';
 import Swal from 'sweetalert2';
-// import { Version3Client } from 'jira.js';
+import { Version3Client } from 'jira.js';
 
 const SingleProject = (props: any) => {
 	const [boards, setBoards] = useState([]);
@@ -124,32 +124,32 @@ const SingleProject = (props: any) => {
 			confirmButtonText: "Delete",
 		}).then(async (result) => {
 			if (result.isConfirmed) {
-				let config = {
-					method: 'delete',
-					url: `${props.siteUrl}rest/api/2/issue/${cid}`,
-					headers: {
-						'Authorization': `Basic ${props.token}`
-					}
-				};
+				// let config = {
+				// 	method: 'delete',
+				// 	url: `${props.siteUrl}rest/api/2/issue/${cid}`,
+				// 	headers: {
+				// 		'Authorization': `Basic ${props.token}`
+				// 	}
+				// };
 				try {
-					const res = await axios.request(config);
-					console.log("Delete:", res.data);
+					// const res = await axios.request(config);
+					// console.log("Delete:", res.data);
 
-					// const client = new Version3Client({
-					// 	host: props.siteUrl,
-					// 	authentication: {
-					// 		basic: {
-					// 			email: props.email,
-					// 			apiToken: props.token,
-					// 		},
-					// 	},
-					// });
+					const client = new Version3Client({
+						host: props.siteUrl,
+						authentication: {
+							basic: {
+								email: props.email,
+								apiToken: props.token,
+							},
+						},
+					});
 					
-					// // Delete the issue
-					// const deletionResponse = await client.issues.deleteIssue({
-					// 	issueIdOrKey: cid,
-					// });
-					// console.log(deletionResponse)
+					// Delete the issue
+					const deletionResponse = await client.issues.deleteIssue({
+						issueIdOrKey: cid,
+					});
+					console.log(deletionResponse)
 
 					const tempBoards = [...boards];
 					const cards = tempBoards[index].issue;
