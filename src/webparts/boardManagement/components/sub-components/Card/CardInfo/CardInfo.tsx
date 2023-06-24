@@ -19,31 +19,33 @@ const CardInfo = (props: any) => {
     const [values, setValues] = React.useState({ ...props.card });
 
     const updateTitle = async (value: string) => {
+
         const editedCard = { ...props.card };
         editedCard.fields.summary = value;
         setValues(editedCard);
 
-        try {
-            const data = JSON.stringify({
-                "key": props.card.key,
-                "email": props.email,
-                "url": props.siteUrl,
-                "issueIdOrKey": props.id,
-                "fields": {
-                    "summary": values,
-                    "desvription": props.card.fields.description,
-                },
-            });
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/update-issue',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
+        const data = JSON.stringify({
+            "email": props.email,
+            "url": props.siteUrl,
+            "token": props.token,
+            "issueIdOrKey": props.card.key,
+            "fields": {
+                "summary": value,
+                "description": ""
+            }
+        });
 
+        const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        try {
             const res = await axios.request(config);
             console.log(res.data)
             // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
@@ -54,12 +56,41 @@ const CardInfo = (props: any) => {
         }
 
     }
-    const updateDesc = (value: string) => {
+    const updateDesc = async(value: string) => {
         const editedCard = { ...props.card };
         editedCard.fields.description = value;
         setValues(editedCard);
 
-        setValues(editedCard);
+        const data = JSON.stringify({
+            "email": props.email,
+            "url": props.siteUrl,
+            "token": props.token,
+            "issueIdOrKey": props.card.key,
+            "fields": {
+                "summary": props.card.fields.summary,
+                "description": value
+            }
+        });
+
+        const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+
+        try {
+            const res = await axios.request(config);
+            console.log(res.data)
+            // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
+            // else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Card Title Update Failed!');
+        }
+        catch (err) {
+            ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
+        }
     }
 
     const [dropdownData, setDropdownData] = React.useState([]);

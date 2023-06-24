@@ -64,6 +64,8 @@ const SingleProject = (props: any) => {
 	};
 	// Add a Card (Issue) in a Particular Jira Board
 	const addCardHandler = async (issueTitle: string, title: string) => {
+		// console.log('Initially ' + (window.navigator.onLine ? 'on' : 'off') + 'line');
+
 		let data = JSON.stringify({
 			"email": props.email,
 			"url": props.siteUrl,
@@ -80,6 +82,44 @@ const SingleProject = (props: any) => {
 			},
 			data: data
 		};
+
+		if (!window.navigator.onLine) {
+			let temp: any = [];
+			let offlineData = localStorage.getItem("syncData");
+			offlineData = JSON.parse(offlineData);
+			console.log("Offline Data = ", offlineData)
+			if (offlineData && offlineData.length > 0) {
+				temp = offlineData;
+				temp.push(data);
+			}
+			else {
+				temp.push(data);
+			}
+			localStorage.setItem("syncData", JSON.stringify(temp));
+
+			const newIssue = {
+				id: '10091',
+				key: 'JIRATEAMS-53',
+				self: 'self',
+				fields: {
+					project: {
+						key: "JIRATEAMS"
+					},
+					summary: title,
+					description: title,
+					issuetype: {
+						name: "Task"
+					}
+				},
+			}
+			let newBoard: any = [...boards];
+			newBoard[0].issue.push(newIssue);
+			console.log(newBoard)
+			setBoards(newBoard);
+
+			return;
+		}
+
 		try {
 			const response = await axios.request(config);
 			if (response.data.self) {
@@ -102,6 +142,7 @@ const SingleProject = (props: any) => {
 				newBoard[0].issue.push(newIssue);
 				console.log(newBoard)
 				setBoards(newBoard);
+
 				ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Issue Created Successfully!');
 			}
 			else {
@@ -144,7 +185,7 @@ const SingleProject = (props: any) => {
 							},
 						},
 					});
-					
+
 					// Delete the issue
 					const deletionResponse = await client.issues.deleteIssue({
 						issueIdOrKey: cid,
