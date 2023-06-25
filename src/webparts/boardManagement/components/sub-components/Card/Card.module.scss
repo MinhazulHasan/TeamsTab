@@ -5,6 +5,13 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    cursor: pointer;
+    transition: background-color 140ms ease-in-out 0s, color 140ms ease-in-out 0s;
+
+    &:active {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+    }
 }
 
 .card_top {

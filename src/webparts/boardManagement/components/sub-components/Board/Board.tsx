@@ -14,8 +14,8 @@ const Board = (props: any) => {
 
             <div className={styles.board_header}>
                 <p className={styles.board_header_title}>
-                    {props.board?.name}
-                    <span> - {props.board?.cards?.length || 0}</span>
+                    {props.board?.issueTitle}
+                    <span> - {props.board?.issue?.length || 0}</span>
                 </p>
                 <div
                     className={styles.board_header_title_more}
@@ -36,15 +36,19 @@ const Board = (props: any) => {
             </div>
 
             <div className={`${styles.board_cards} ${styles.custom_scroll}`}>
-                {props.board?.cards?.map((item: any) => (
+                {props.board?.issue?.map((item: any) => (
                     <Card
                         key={item.id}
                         card={item}
-                        boardId={props.board.id}
+                        boardId={props.board.issueId}
                         removeCard={props.removeCard}
                         dragEntered={props.dragEntered}
                         dragEnded={props.dragEnded}
                         updateCard={props.updateCard}
+                        email={props.email}
+                        siteUrl={props.siteUrl}
+                        token={props.token}
+                        pnpService={props.pnpService}
                     />
                 ))}
                 <Editable
@@ -52,7 +56,7 @@ const Board = (props: any) => {
                     editClass={styles.board_add_card_edit}
                     text="+ Add Card"
                     placeholder="Enter card title"
-                    onSubmit={(value: any) => props.addCard(props.board?.id, value)}
+                    onSubmit={(value: any) => props.addCard(props.board?.issueTitle, value)}
                 />
             </div>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -11,7 +12,8 @@ const Card = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
 
-    const { id, name, date, tasks, labels } = props.card;
+    const { card } = props;
+    const { date, tasks, labels } = props.card;
 
     const formatDate = (value: string | number | Date) => {
         if (!value) return "";
@@ -25,7 +27,7 @@ const Card = (props: any) => {
         return day + " " + month;
     };
 
-
+    
     return (
         <>
             {
@@ -35,13 +37,18 @@ const Card = (props: any) => {
                     card={props.card}
                     boardId={props.boardId}
                     updateCard={props.updateCard}
+                    email={props.email}
+                    siteUrl={props.siteUrl}
+                    token={props.token}
+                    setShowModal={setShowModal}
+                    pnpService={props.pnpService}
                 />
             }
             <div
                 className={styles.card}
                 draggable
-                onDragEnd={() => props.dragEnded(props.boardId, id)}
-                onDragEnter={() => props.dragEntered(props.boardId, id)}
+                onDragEnd={() => props.dragEnded(props.boardId, card)}
+                onDragEnter={() => props.dragEntered(props.boardId, card)}
                 onClick={() => setShowModal(true)}
             >
                 <div className={styles.card_top}>
@@ -63,14 +70,15 @@ const Card = (props: any) => {
                         <MoreHorizontal />
                         {showDropdown && (
                             <Dropdown className={styles.board_dropdown} onClose={() => setShowDropdown(false)}>
-                                <p onClick={() => props.removeCard(props.boardId, id)}>
+                                <p onClick={() => props.removeCard(props.boardId, card.id, card.key)}>
                                     Delete Card
                                 </p>
                             </Dropdown>
                         )}
                     </div>
                 </div>
-                <div className={styles.card_title}>{name}</div>
+                <div className={styles.card_title}>{card?.fields?.summary}</div>
+                <div style={{ color: 'gray' }}>{card?.key}</div>
                 <div className={styles.card_footer}>
                     {date && (
                         <p className={styles.card_footer_item}>

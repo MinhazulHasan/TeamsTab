@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable prefer-const */
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -5,144 +7,56 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import * as React from 'react';
+import { useState } from 'react';
 import styles from './BoardManagement.module.scss';
 import { IBoardManagementProps } from './IBoardManagementProps';
-// import { escape } from '@microsoft/sp-lodash-subset';
-import Board from './sub-components/Board/Board';
-import Editable from './sub-components/Editable/Editable';
+import Credential from './sub-components/Credential/Credential';
+import Projects from './sub-components/Projects/Projects';
+import SingleProject from './sub-components/SingleProject/SingleProject';
+import Navbar from './sub-components/Navbar/Navbar';
+import { escape } from '@microsoft/sp-lodash-subset';
+import PnpService from '../../../services/pnp-service';
 
-
+export const UserContext = React.createContext(null);
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
-	const [boards, setBoards] = React.useState(
-		JSON.parse(localStorage.getItem("board-management")) || []
-	);
 
-	const [targetCard, setTargetCard] = React.useState({ bId: "", cId: "" });
+	const pnpService: PnpService = new PnpService(props.context);
 
-	const addboardHandler = (name: string) => {
-		const tempBoards = [...boards];
-		tempBoards.push({
-			id: Date.now() + Math.random() * 2,
-			title: name,
-			cards: [],
-		});
-		setBoards(tempBoards);
-	};
+	const [hasCredential, setHasCredential] = useState(false);
+	const [boardKey, setBoardKey] = useState("");
+	const [page, setPage] = useState({ Projects: true, SingleProject: false });
+	const [issue, setIssue] = useState({});
 
-	const removeBoard = (id: string) => {
-		const index = boards.findIndex((item: { id: string; }) => item.id === id);
-		if (index < 0) return;
-
-		const tempBoards = [...boards];
-		tempBoards.splice(index, 1);
-		setBoards(tempBoards);
-	};
-
-	const addCardHandler = (id: string, title: string) => {
-		const index = boards.findIndex((item: { id: any }) => item.id === id);
-		if (index < 0) return;
-
-		const tempBoards = [...boards];
-		tempBoards[index].cards.push({
-			id: Date.now() + Math.random() * 2,
-			title,
-			labels: [],
-			date: "",
-			tasks: [],
-		});
-		setBoards(tempBoards);
-	};
-
-	const removeCard = (bid: string, cid: string) => {
-		const index = boards.findIndex((item: { id: string; }) => item.id === bid);
-		if (index < 0) return;
-
-		const tempBoards = [...boards];
-		const cards = tempBoards[index].cards;
-
-		const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cid);
-		if (cardIndex < 0) return;
-
-		cards.splice(cardIndex, 1);
-		setBoards(tempBoards);
-	};
-
-	const dragEntered = (bId: string, cId: string) => {
-		if (targetCard.cId === cId) return;
-		setTargetCard({ bId, cId });
-	}
-
-	const dragEnded = (bId: string, cId: string) => {
-		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
-
-		s_boardIndex = boards.findIndex((item: { id: string; }) => item.id === bId);
-		if (s_boardIndex < 0) return;
-
-		s_cardIndex = boards[s_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === cId);
-		if (s_cardIndex < 0) return;
-
-		t_boardIndex = boards.findIndex((item: { id: string; }) => item.id === targetCard.bId);
-		if (t_boardIndex < 0) return;
-
-		t_cardIndex = boards[t_boardIndex]?.cards?.findIndex((item: { id: string; }) => item.id === targetCard.cId);
-		if (t_cardIndex < 0) return;
-
-		const tempBoards = [...boards];
-		const sourceCard = tempBoards[s_boardIndex].cards[s_cardIndex];
-		tempBoards[s_boardIndex].cards.splice(s_cardIndex, 1);
-		tempBoards[t_boardIndex].cards.splice(t_cardIndex, 0, sourceCard);
-		setBoards(tempBoards);
-
-		setTargetCard({ bId: "", cId: "" });
-	}
-
-	const updateCard = (bId: string, cId: string, card: any) => {
-		const index = boards.findIndex((item: { id: string; }) => item.id === bId);
-		if (index < 0) return;
-		const tempBoards = [...boards];
-		const cards = tempBoards[index].cards;
-		const cardIndex = cards.findIndex((item: { id: string; }) => item.id === cId);
-		if (cardIndex < 0) return;
-		tempBoards[index].cards[cardIndex] = card;
-		setBoards(tempBoards);
-	};
-
-	React.useEffect(() => {
-		localStorage.setItem("board-management", JSON.stringify(boards));
-	}, [boards]);
+	const [email, setEmail] = useState("");
+	const [siteUrl, setSiteUrl] = useState("");
+	const [token, setToken] = useState("");
 
 	return (
-		<div className={styles.app}>
-			{/* <div className={styles.app_navbar}>
-				<h2>Hello, {escape(props.userDisplayName)}!</h2>
-			</div> */}
-			<div className={`${styles.app_boards_container}`}>
-				<div className={`${styles.app_boards} ${styles.custom_scroll}`}>
-					{boards.map((item: { id: any; }) => (
-						<Board
-							key={item.id}
-							board={item}
-							addCard={addCardHandler}
-							removeBoard={() => removeBoard(item.id)}
-							removeCard={removeCard}
-							dragEnded={dragEnded}
-							dragEntered={dragEntered}
-							updateCard={updateCard}
+		<UserContext.Provider value={[issue, setIssue]}>
+			<div className={styles.app}>
+				{
+					hasCredential ?
+						<>
+							<Navbar currentUser={escape(props.userDisplayName)} setPage={setPage} setHasCredential={setHasCredential} />
+							<div className={`${styles.app_boards_container} ${styles.custom_scroll}`}>
+								{page.Projects && <Projects setPage={setPage} setBoardKey={setBoardKey} email={email} siteUrl={siteUrl} token={token} />}
+								{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} email={email} siteUrl={siteUrl} token={token} pnpService={pnpService} />}
+							</div>
+						</>
+						:
+						<Credential
+							setHasCredential={setHasCredential}
+							setEmail={setEmail}
+							setSiteUrl={setSiteUrl}
+							setToken={setToken}
+							email={email}
+							siteUrl={siteUrl}
+							token={token}
 						/>
-					))}
-					<div className={styles.app_boards_last}>
-						<Editable
-							displayClass={styles.app_boards_board_add}
-							editClass={styles.app_boards_add_board_edit}
-							placeholder="Enter Board Title"
-							text="Add Board"
-							onSubmit={addboardHandler}
-						/>
-					</div>
-				</div>
+				}
 			</div>
-		</div>
+		</UserContext.Provider>
 	);
 };
 

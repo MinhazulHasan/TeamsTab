@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
 'use strict';
 
 const build = require('@microsoft/sp-build-web');
@@ -12,5 +14,5 @@ build.rig.getTasks = function () {
 
   return result;
 };
-
+build.tslintCmd.enabled = false;
 build.initialize(require('gulp'));

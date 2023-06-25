@@ -7,7 +7,7 @@ import styles from './Editable.module.scss';
 const Editable = (props: any) => {
     const [isEditable, setIsEditable] = React.useState(false);
     const [inputText, setInputText] = React.useState(props.defaultValue || "");
-
+    // Form submission method for creating issue or board
     const submission = (event: { preventDefault: () => void; }) => {
         event.preventDefault();
         if (inputText && props.onSubmit) {
