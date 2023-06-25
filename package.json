@@ -12,11 +12,13 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "@microsoft/rush-stack-compiler-4.2": "^0.3.0",
     "@microsoft/sp-core-library": "1.17.1",
     "@microsoft/sp-lodash-subset": "1.17.1",
     "@microsoft/sp-office-ui-fabric-core": "1.17.1",
     "@microsoft/sp-property-pane": "1.17.1",
     "@microsoft/sp-webpart-base": "1.17.1",
+    "@pnp/sp": "^3.16.0",
     "@sweetalert2/theme-material-ui": "^5.0.15",
     "axios": "^1.4.0",
     "jira.js": "^2.19.0",
