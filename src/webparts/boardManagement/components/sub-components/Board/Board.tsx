@@ -48,6 +48,7 @@ const Board = (props: any) => {
                         email={props.email}
                         siteUrl={props.siteUrl}
                         token={props.token}
+                        pnpService={props.pnpService}
                     />
                 ))}
                 <Editable

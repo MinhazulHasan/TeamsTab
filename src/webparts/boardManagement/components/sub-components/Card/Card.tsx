@@ -41,6 +41,7 @@ const Card = (props: any) => {
                     siteUrl={props.siteUrl}
                     token={props.token}
                     setShowModal={setShowModal}
+                    pnpService={props.pnpService}
                 />
             }
             <div

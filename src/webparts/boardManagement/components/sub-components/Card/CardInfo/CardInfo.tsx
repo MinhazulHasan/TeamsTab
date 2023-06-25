@@ -3,9 +3,10 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import styles from './CardInfo.module.scss';
 import Modal from '../../Modal/Modal';
-import { ChevronDown, ChevronUp, Eye, List, MoreHorizontal, Share2, ThumbsUp, Type, Unlock, X, } from "react-feather";
+import { ChevronDown, ChevronUp, Clock, Eye, List, MoreHorizontal, Share2, ThumbsUp, Type, Unlock, Watch, X, } from "react-feather";
 import Editable from '../../Editable/Editable';
 import Select from 'react-select';
 import * as moment from 'moment';
@@ -13,10 +14,15 @@ import axios from 'axios';
 import { ToastMessage } from '../../../../assets/Toast/toast';
 
 const CardInfo = (props: any) => {
-    // const colors: Array<string> = ["#a8193d", "#4fcc25", "#1ebffa", "#8da377", "#9975bd", "#cf61a1", "#240959"];
-
-    // const [selectedColor, setSelectedColor] = React.useState(null);
     const [values, setValues] = React.useState({ ...props.card });
+    const [dropdownData, setDropdownData] = useState([]);
+    const [showAccordion, setShowAccordion] = useState(true);
+    const [devTimeLog, setDevTimeLog] = useState(0);
+    const [selectedOption, setSelectedOption] = useState(
+        props.card.fields.assignee !== null ?
+        [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
+        null
+    );
 
     const updateTitle = async (value: string) => {
 
@@ -56,7 +62,7 @@ const CardInfo = (props: any) => {
         }
 
     }
-    const updateDesc = async(value: string) => {
+    const updateDesc = async (value: string) => {
         const editedCard = { ...props.card };
         editedCard.fields.description = value;
         setValues(editedCard);
@@ -93,10 +99,31 @@ const CardInfo = (props: any) => {
         }
     }
 
-    const [dropdownData, setDropdownData] = React.useState([]);
+    const setOrUpdateDevTimeLog = async (value: string) => {
+        if(Number.isNaN(parseFloat(value))) {
+            ToastMessage.toastWithConfirmation('error', 'Invalid Number', 'Please enter a valid number');
+            return;
+        }
+        const jiraIssueObj = {
+            Title: props.email,
+            BoardID: parseInt(props.boardId),
+            IssueID: parseInt(props.card.id),
+            DevTimeLog: parseFloat(value)
+        }
+        const res = await props.pnpService.setOrUpdateDevTimeLog(jiraIssueObj);
+        if(res) setDevTimeLog(parseFloat(value));
+    }
 
-    const [selectedOption, setSelectedOption] = React.useState(props.card.fields.assignee !== null ? [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] : null);
-    const [showAccordion, setShowAccordion] = React.useState(true);
+    const getDevTimeLog = async () => {
+        const jiraIssueObj = {
+            Title: props.email,
+            BoardID: parseInt(props.boardId),
+            IssueID: parseInt(props.card.id)
+        }
+        const timeLog = await props.pnpService.getDevTimeLog(jiraIssueObj);
+        if(timeLog)
+            setDevTimeLog(timeLog);
+    }
 
     const handleChange = async (selectedOption: any) => {
         console.log(selectedOption)
@@ -129,68 +156,6 @@ const CardInfo = (props: any) => {
         }
     };
 
-    // const addLabel = (label: any) => {
-    //     const index = values.labels.findIndex((item: { text: any; }) => item.text === label.text);
-    //     if (index > -1) return;
-    //     setSelectedColor("");
-    //     setValues({
-    //         ...values,
-    //         labels: [...values.labels, label],
-    //     });
-    // };
-
-    // const removeLabel = (label: { text: any; }) => {
-    //     const tempLabels = values.labels.filter((item: { text: any; }) => item.text !== label.text);
-
-    //     setValues({
-    //         ...values,
-    //         labels: tempLabels,
-    //     });
-    // };
-
-    // const addTask = (value: any) => {
-    //     const task = {
-    //         id: Date.now() + Math.random() * 2,
-    //         completed: false,
-    //         text: value,
-    //     };
-    //     setValues({
-    //         ...values,
-    //         tasks: [...values.tasks, task],
-    //     });
-    // };
-
-    // const removeTask = (id: any) => {
-    //     const tasks = [...values.tasks];
-    //     const tempTasks = tasks.filter((item) => item.id !== id);
-    //     setValues({
-    //         ...values,
-    //         tasks: tempTasks,
-    //     });
-    // };
-
-    // const updateTask = (id: any, value: boolean) => {
-    //     const tasks = [...values.tasks];
-    //     const index = tasks.findIndex((item) => item.id === id);
-    //     if (index < 0) return;
-    //     tasks[index].completed = value;
-    //     setValues({
-    //         ...values,
-    //         tasks,
-    //     });
-    // };
-
-    // const calculatePercent = () => {
-    //     if (!values.tasks?.length) return 0;
-    //     const completed = values.tasks?.filter((item: { completed: any; }) => item.completed)?.length;
-    //     return (completed / values.tasks?.length) * 100;
-    // };
-
-    // const updateDate = (date: string) => {
-    //     if (!date) return;
-    //     setValues({ ...values, date });
-    // };
-
     const getDropdownData = async () => {
         try {
             const data = JSON.stringify({
@@ -222,9 +187,9 @@ const CardInfo = (props: any) => {
         }
     }
 
-    React.useEffect(() => {
-        console.log(props);
+    useEffect(() => {
         getDropdownData();
+        getDevTimeLog();
         if (props.updateCard) props.updateCard(props.boardId, values.id, values);
     }, [values]);
 
@@ -270,90 +235,35 @@ const CardInfo = (props: any) => {
                         </div>
                     </div>
 
-                    {/* <div className={styles.cardinfo_box}>
+                    <div className={styles.cardinfo_box}>
                         <div className={styles.cardinfo_box_title}>
-                            <Calendar />
-                            <p>Date</p>
+                            <Clock />
                         </div>
                         <div className={styles.cardinfo_box_body}>
-                            <input
-                                type="date"
-                                defaultValue={values.fields.updated.split('T')[0]}
-                                min={new Date().toISOString().substr(0, 10)}
-                                onChange={(event) => updateDate(event.target.value)}
-                            />
-                        </div>
-                    </div> */}
-
-                    {/* <div className={styles.cardinfo_box}>
-                        <div className={styles.cardinfo_box_title}>
-                            <Tag />
-                        </div>
-                        <div className={styles.cardinfo_box_body}>
-                            <div className={styles.cardinfo_box_labels}>
-                                {values.labels?.map((item: { color?: any; text: any; }, index: React.Key) => (
-                                    <label
-                                        key={index}
-                                        style={{ backgroundColor: item.color, color: "#fff" }}
-                                    >
-                                        {item.text}
-                                        <X onClick={() => removeLabel(item)} />
-                                    </label>
-                                ))}
-                            </div>
-                            <ul style={{ margin: '0' }}>
-                                {colors.map((item, index) => (
-                                    <li
-                                        key={index + item}
-                                        style={{ backgroundColor: item }}
-                                        className={selectedColor === item ? `${styles.li_active}` : ""}
-                                        onClick={() => setSelectedColor(item)}
-                                    />
-                                ))}
-                            </ul>
                             <Editable
-                                text="Add Label"
-                                placeholder="Enter label text"
-                                onSubmit={(value: any) =>
-                                    addLabel({ color: selectedColor, text: value })
-                                }
+                                defaultValue={devTimeLog}
+                                text={devTimeLog ? `Dev Time: ${devTimeLog} hours` : "Enter Developers Time Log (Hours)"}
+                                placeholder="Developers Time Log (Hours)"
+                                onSubmit={setOrUpdateDevTimeLog}
                             />
                         </div>
-                    </div> */}
+                    </div>
 
-                    {/* <div className={styles.cardinfo_box}>
+                    <div className={styles.cardinfo_box}>
                         <div className={styles.cardinfo_box_title}>
-                            <CheckSquare />
-                            <p>Sub-Tasks</p>
+                            <Watch />
                         </div>
-                        <div className={styles.cardinfo_box_progress_bar}>
-                            <div
-                                className={styles.cardinfo_box_progress}
-                                style={{
-                                    width: `${calculatePercent()}%`,
-                                    backgroundColor: calculatePercent() === 100 ? "limegreen" : "",
-                                }}
-                            />
+                        <div className={styles.cardinfo_box_body}>
+                            <p>
+                                {
+                                    props.card?.fields?.timeestimate ?
+                                    `Assign Time: ${props.card.fields.timeestimate} hours` :
+                                    "Assign Time: Time hasn't been allocated yet"
+                                }
+                            </p>
                         </div>
-                        <div className={styles.cardinfo_box_task_list}>
-                            {values.features?.subtasks?.map((item: { id: React.Key; completed: boolean; text: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; }) => (
-                                <div key={item.id} className={styles.cardinfo_box_task_checkbox}>
-                                    <input
-                                        type="checkbox"
-                                        defaultChecked={item.completed}
-                                        onChange={(event) => updateTask(item.id, event.target.checked)}
-                                    />
-                                    <p className={item.completed ? `${styles.completed}` : ""}>{item.text}</p>
-                                    <Trash onClick={() => removeTask(item.id)} />
-                                </div>
-                            ))}
-                        </div>
-                        <Editable
-                            text={"Add a Task"}
-                            placeholder="Enter task"
-                            onSubmit={addTask}
-                        />
-                    </div> */}
+                    </div>
+
                 </div>
 
                 <div className={styles.cardinfo}>
@@ -380,26 +290,11 @@ const CardInfo = (props: any) => {
                                                 value={selectedOption}
                                                 onChange={handleChange}
                                                 options={dropdownData}
-                                                isClearable
+                                                // isClearable
                                                 isSearchable
                                             />
                                         </div>
                                     </div>
-
-                                    {/* <div className={styles.cardinfo_box} style={{ marginBottom: '1' }}>
-                                        <div className={styles.cardinfo_box_title} style={{ width: '71' }}>
-                                            Labels
-                                        </div>
-                                        <div className={styles.cardinfo_box_body}>
-                                            <Select
-                                                value={selectedOption}
-                                                onChange={handleChange}
-                                                options={dropdownData}
-                                                isClearable
-                                                isSearchable
-                                            />
-                                        </div>
-                                    </div> */}
 
                                     <div className={styles.cardinfo_box} style={{ marginBottom: '5px' }}>
                                         <div className={styles.cardinfo_box_title} style={{ width: '75px' }}>

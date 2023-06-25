@@ -342,6 +342,7 @@ const SingleProject = (props: any) => {
 					email={props.email}
 					siteUrl={props.siteUrl}
 					token={props.token}
+					pnpService={props.pnpService}
 				/>
 			))}
 			<div className={styles.app_boards_last}>

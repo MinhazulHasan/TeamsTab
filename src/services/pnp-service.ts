@@ -6,6 +6,11 @@
 import { spfi, SPFx } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
+import "@pnp/sp/items";
+import "@pnp/sp/site-groups/web";
+import "@pnp/sp/site-users/web";
+import "@pnp/sp/site-groups";
+import { ToastMessage } from "../webparts/boardManagement/assets/Toast/toast";
 
 class PnpService {
 	public siteUrl: string;
@@ -23,19 +28,40 @@ class PnpService {
 		this.sp = spfi(this.siteUrl).using(SPFx(context));
 	}
 
-	// public async sumbitQuestionWithAnswers(questionListObj: any, answerListObj: any) {
-	// 	try {
-	// 		await this.sp.web.lists.getByTitle("QuestionAnswer").items.add(questionListObj);
-	// 		answerListObj.forEach(async (element: any) => {
-	// 			await this.sp.web.lists.getByTitle("AnswerDetailsAndResponse").items.add(element);
-	// 		});
-	// 		return true;
-	// 	}
-	// 	catch (e) {
-	// 		console.log(e);
-	// 		return false;
-	// 	}
-	// }
+	public async setOrUpdateDevTimeLog(jiraIssueObj: { Title: string; BoardID: number; IssueID: number; DevTimeLog: number; }) {
+		try {
+			const exist = await this.sp.web.lists.getByTitle("JiraIssue").items
+				.filter(`Title eq '${jiraIssueObj.Title}' and BoardID eq ${jiraIssueObj.BoardID} and IssueID eq ${jiraIssueObj.IssueID}`).top(1)();
+            if(exist.length > 0) {
+                await this.sp.web.lists.getByTitle("JiraIssue").items.getById(exist[0].Id).update({ DevTimeLog: jiraIssueObj.DevTimeLog });
+				ToastMessage.toastWithoutConfirmation('success', 'Successful', 'Dev TimeLog Update...');
+			}
+            else {
+                await this.sp.web.lists.getByTitle("JiraIssue").items.add(jiraIssueObj);
+				ToastMessage.toastWithoutConfirmation('success', 'Successful', 'Dev TimeLog Set...');
+            }
+			return true;
+		}
+		catch (e) {
+			console.log(e);
+			return false;
+		}
+	}
+
+	public async getDevTimeLog(jiraIssueObj: { Title: string; BoardID: number; IssueID: number; }) {
+		try {
+			const exist = await this.sp.web.lists.getByTitle("JiraIssue").items
+				.filter(`Title eq '${jiraIssueObj.Title}' and BoardID eq ${jiraIssueObj.BoardID} and IssueID eq ${jiraIssueObj.IssueID}`).top(1)();
+            if(exist.length > 0)
+				return exist[0].DevTimeLog;
+			else
+				return 0;
+		}
+		catch (e) {
+			console.log(e);
+			return false;
+		}
+	}
 
 
 }

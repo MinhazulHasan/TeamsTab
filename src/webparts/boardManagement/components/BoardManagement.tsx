@@ -21,7 +21,7 @@ export const UserContext = React.createContext(null);
 
 const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagementProps) => {
 
-	const service: PnpService = new PnpService(props.context);
+	const pnpService: PnpService = new PnpService(props.context);
 
 	const [hasCredential, setHasCredential] = useState(false);
 	const [boardKey, setBoardKey] = useState("");
@@ -41,7 +41,7 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 							<Navbar currentUser={escape(props.userDisplayName)} setPage={setPage} setHasCredential={setHasCredential} />
 							<div className={`${styles.app_boards_container} ${styles.custom_scroll}`}>
 								{page.Projects && <Projects setPage={setPage} setBoardKey={setBoardKey} email={email} siteUrl={siteUrl} token={token} />}
-								{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} email={email} siteUrl={siteUrl} token={token} service={service} />}
+								{page.SingleProject && <SingleProject setPage={setPage} boardKey={boardKey} email={email} siteUrl={siteUrl} token={token} pnpService={pnpService} />}
 							</div>
 						</>
 						:
@@ -61,5 +61,3 @@ const BoardManagement: React.FC<IBoardManagementProps> = (props: IBoardManagemen
 };
 
 export default BoardManagement;
-
-// {/* <h2>Hello, {escape(props.userDisplayName)}!</h2> */}
