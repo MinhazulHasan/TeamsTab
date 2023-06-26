@@ -85,7 +85,7 @@ const SingleProject = (props: any) => {
 
 		if (!window.navigator.onLine) {
 			let temp: any = [];
-			let offlineData = localStorage.getItem("syncData");
+			let offlineData = localStorage.getItem("issueCreateData");
 			offlineData = JSON.parse(offlineData);
 			console.log("Offline Data = ", offlineData)
 			if (offlineData && offlineData.length > 0) {
@@ -95,7 +95,7 @@ const SingleProject = (props: any) => {
 			else {
 				temp.push(data);
 			}
-			localStorage.setItem("syncData", JSON.stringify(temp));
+			localStorage.setItem("issueCreateData", JSON.stringify(temp));
 
 			const newIssue = {
 				id: '10091',
@@ -225,49 +225,66 @@ const SingleProject = (props: any) => {
 			"key": card.id,
 			"status": targetCard?.card?.fields?.status?.name,
 		});
-		const config = {
-			method: 'post',
-			maxBodyLength: Infinity,
-			url: 'https://proxy-skip-app-production.up.railway.app/change-issue-status',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			data: data
-		};
 
-		try {
-			const res = await axios.request(config);
-			console.log(res.data)
-
-			console.log("Drag End:\n", { bId, card })
-			let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
-
-			s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
-			if (s_boardIndex < 0) return;
-
-			s_cardIndex = boards[s_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === card.id);
-			if (s_cardIndex < 0) return;
-
-			t_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === targetCard.bId);
-			if (t_boardIndex < 0) return;
-
-			t_cardIndex = boards[t_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === targetCard.card.id);
-			if (t_cardIndex < 0) return;
-
-			const tempBoards = [...boards];
-			const sourceCard = tempBoards[s_boardIndex].issue[s_cardIndex];
-			tempBoards[s_boardIndex].issue.splice(s_cardIndex, 1);
-			tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
-			setBoards(tempBoards);
-
-			setTargetCard({ bId: "", card: { id: "", fields: { status: { name: "" } } } });
-			ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Moved successfully!');
+		if (!window.navigator.onLine) {
+			let temp: any = [];
+			let offlineData = localStorage.getItem("issueTransferData");
+			offlineData = JSON.parse(offlineData);
+			console.log("Offline issueTransferData = ", offlineData)
+			if (offlineData && offlineData.length > 0) {
+				temp = offlineData;
+				temp.push(data);
+			}
+			else {
+				temp.push(data);
+			}
+			localStorage.setItem("issueTransferData", JSON.stringify(temp));
+			ToastMessage.toastWithConfirmation('info', 'Card Transfered in Local Cache', 'Wait for internet connection to update on Jira server');
 		}
-		catch (error) {
-			ToastMessage.toastWithConfirmation('error', 'Action faield...', error);
+		else {
+			try {
+				const config = {
+					method: 'post',
+					maxBodyLength: Infinity,
+					url: 'https://proxy-skip-app-production.up.railway.app/change-issue-status',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					data: data
+				};
+
+				const res = await axios.request(config);
+				console.log(res.data)
+				ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Moved successfully!');
+			}
+			catch (error) {
+				ToastMessage.toastWithConfirmation('error', 'Action faield...', error);
+				return;
+			}
 		}
 
+		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
+
+		s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
+		if (s_boardIndex < 0) return;
+
+		s_cardIndex = boards[s_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === card.id);
+		if (s_cardIndex < 0) return;
+
+		t_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === targetCard.bId);
+		if (t_boardIndex < 0) return;
+
+		t_cardIndex = boards[t_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === targetCard.card.id);
+		if (t_cardIndex < 0) return;
+
+		const tempBoards = [...boards];
+		const sourceCard = tempBoards[s_boardIndex].issue[s_cardIndex];
+		tempBoards[s_boardIndex].issue.splice(s_cardIndex, 1);
+		tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
+		setBoards(tempBoards);
+		setTargetCard({ bId: "", card: { id: "", fields: { status: { name: "" } } } });
 	}
+
 	// Update several features of a Card (Issue)
 	const updateCard = (bId: string, cId: string, card: any) => {
 		const index = boards.findIndex((item: { id: string; }) => item.id === bId);
