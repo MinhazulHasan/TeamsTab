@@ -20,8 +20,8 @@ const CardInfo = (props: any) => {
     const [devTimeLog, setDevTimeLog] = useState(0);
     const [selectedOption, setSelectedOption] = useState(
         props.card.fields.assignee !== null ?
-        [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
-        null
+            [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
+            null
     );
 
     const updateTitle = async (value: string) => {
@@ -34,17 +34,15 @@ const CardInfo = (props: any) => {
             "email": props.email,
             "url": props.siteUrl,
             "token": props.token,
-            "issueIdOrKey": props.card.key,
-            "fields": {
-                "summary": value,
-                "description": ""
-            }
+            "summary": value,
+            "description": props.card.fields.description || "",
+            "id": props.card.id
         });
 
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
+            url: 'https://proxy-skip-app-production.up.railway.app/update-issue',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -81,7 +79,7 @@ const CardInfo = (props: any) => {
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
+            url: 'https://proxy-skip-app-production.up.railway.app/update-issue',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -100,7 +98,7 @@ const CardInfo = (props: any) => {
     }
 
     const setOrUpdateDevTimeLog = async (value: string) => {
-        if(Number.isNaN(parseFloat(value))) {
+        if (Number.isNaN(parseFloat(value))) {
             ToastMessage.toastWithConfirmation('error', 'Invalid Number', 'Please enter a valid number');
             return;
         }
@@ -111,7 +109,7 @@ const CardInfo = (props: any) => {
             DevTimeLog: parseFloat(value)
         }
         const res = await props.pnpService.setOrUpdateDevTimeLog(jiraIssueObj);
-        if(res) setDevTimeLog(parseFloat(value));
+        if (res) setDevTimeLog(parseFloat(value));
     }
 
     const getDevTimeLog = async () => {
@@ -121,7 +119,7 @@ const CardInfo = (props: any) => {
             IssueID: parseInt(props.card.id)
         }
         const timeLog = await props.pnpService.getDevTimeLog(jiraIssueObj);
-        if(timeLog)
+        if (timeLog)
             setDevTimeLog(timeLog);
     }
 
@@ -258,8 +256,8 @@ const CardInfo = (props: any) => {
                             <p>
                                 {
                                     props.card?.fields?.timeestimate ?
-                                    `Assign Time: ${props.card.fields.timeestimate} hours` :
-                                    "Assign Time: Time hasn't been allocated yet"
+                                        `Assign Time: ${props.card.fields.timeestimate} hours` :
+                                        "Assign Time: Time hasn't been allocated yet"
                                 }
                             </p>
                         </div>

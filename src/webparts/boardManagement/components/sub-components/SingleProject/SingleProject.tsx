@@ -31,6 +31,7 @@ const SingleProject = (props: any) => {
 			}
 		}
 	});
+
 	// Add Board (Row) in a Particular Jira Project
 	const addboardHandler = (name: string) => {
 		const tempBoards: any = [...boards];
@@ -41,6 +42,7 @@ const SingleProject = (props: any) => {
 		});
 		setBoards(tempBoards);
 	};
+
 	// Remove Board from a Particular Jira Project
 	const removeBoard = (id: string) => {
 		Swal.fire({
@@ -62,10 +64,9 @@ const SingleProject = (props: any) => {
 			}
 		});
 	};
+
 	// Add a Card (Issue) in a Particular Jira Board
 	const addCardHandler = async (issueTitle: string, title: string) => {
-		// console.log('Initially ' + (window.navigator.onLine ? 'on' : 'off') + 'line');
-
 		let data = JSON.stringify({
 			"email": props.email,
 			"url": props.siteUrl,
@@ -153,6 +154,7 @@ const SingleProject = (props: any) => {
 			ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 		}
 	};
+
 	// Remove a Card (Issue) from a Particular Jira Board
 	const removeCard = async (bid: string, cid: string, cardKey: any) => {
 		const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
@@ -210,12 +212,14 @@ const SingleProject = (props: any) => {
 			}
 		})
 	};
+
 	// Drag a Card (Issue) from one Board to Another Board and set the Target Card
 	const dragEntered = (bId: string, card: { id: string, fields: { status: { name: string } } }) => {
 		if (targetCard.card.id === card.id) return;
 		setTargetCard({ bId, card });
 		console.log("Drag Enter:\n", { bId, card })
 	}
+
 	// Drop the Card (Issue) from one Board to Another Board and change the status of the Card (Issue)
 	const dragEnded = async (bId: string, card: { id: string, key: string }) => {
 		const data = JSON.stringify({
@@ -296,6 +300,7 @@ const SingleProject = (props: any) => {
 		tempBoards[index].cards[cardIndex] = card;
 		setBoards(tempBoards);
 	};
+	
 	// Get all the boards and Issues of a Jira Project
 	const getJiraData = useCallback(async () => {
 		try {

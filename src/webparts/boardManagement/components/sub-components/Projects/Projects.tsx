@@ -14,25 +14,16 @@ import Loader from '../../../assets/Loader/Loader';
 const Projects = (props: any) => {
 
     const [projects, setProjects] = React.useState([]);
+    
     // Show single project component
     const viewSingleProjectPage = (key: string) => {
         props.setBoardKey(key);
         props.setPage({ Projects: false, SingleProject: true });
     };
+
     // Get all projects from JIRA
     const getJiraProjects = React.useCallback(async () => {
         try {
-            // const client = new Version3Client({
-            //     host: props.siteUrl,
-            //     authentication: {
-            //         basic: {
-            //             email: props.email,
-            //             apiToken: props.apiToken,
-            //         },
-            //     },
-            // });
-            // const projects = await client.projects.getAllProjects();
-            // setProjects(projects);
             const data = JSON.stringify({
                 "email": props.email,
                 "url": props.siteUrl,

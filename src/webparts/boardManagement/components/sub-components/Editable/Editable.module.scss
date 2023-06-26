@@ -19,7 +19,7 @@
 .editable_edit {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
 
     input {
         border-radius: 5px;
@@ -32,31 +32,32 @@
 
 .editable_edit_footer {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
 
-    svg {
-        cursor: pointer;
-    }
-
-    .closeIcon {
-        cursor: pointer;
-        height: 24px;
-        width: 24px;
-    }
-
     button {
+        all: unset;
+        background-color: transparent;
+        color: inherit;
         outline: none;
         border: none;
-        color: #fff;
-        background-color: #1370ec;
         transition: 200ms;
-        padding: 8px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        
-        &:hover {
-            background-color: #0765d1;
-        }
+        padding: 0;
+    }
+}
+
+.svgIcon {
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+    padding: 7px 7px;
+    cursor: pointer;
+    color: #000;
+    background-color: #d7d7d7;
+    border-radius: 2px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+        background-color: #c7c7c7;
     }
 }
