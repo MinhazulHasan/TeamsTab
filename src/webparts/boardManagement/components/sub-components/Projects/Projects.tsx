@@ -6,10 +6,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import * as React from 'react';
 import './Projects.scss';
-import axios from 'axios';
-import { ToastMessage } from '../../../../../services/toast';
 import Loader from '../../../assets/Loader/Loader';
-// import { Version3Client } from 'jira.js';
 
 const Projects = (props: any) => {
 
@@ -23,30 +20,9 @@ const Projects = (props: any) => {
 
     // Get all projects from JIRA
     const getJiraProjects = React.useCallback(async () => {
-        try {
-            const data = JSON.stringify({
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token
-            });
-
-            const config = {
-                method: 'POST',
-                url: 'https://proxy-skip-app-production.up.railway.app/get-all-project',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            if (res.data.length !== 0)  setProjects(res.data);
-            else    ToastMessage.toastWithConfirmation("error", "Projects Not Found", "Please Create a Project in JIRA or Re-Generate your JIRA Token");
-        }
-        catch (error) {
-            ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
-        }
-
+        const data = await props.axiosService.getJiraProjects();
+        if(data)
+            setProjects(data);
     }, []);
 
     React.useEffect(() => {

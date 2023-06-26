@@ -10,7 +10,6 @@ import { ChevronDown, ChevronUp, Clock, Eye, List, MoreHorizontal, Share2, Thumb
 import Editable from '../Editable/Editable';
 import Select from 'react-select';
 import * as moment from 'moment';
-import axios from 'axios';
 import { ToastMessage } from '../../../../../services/toast';
 
 const CardInfo = (props: any) => {
@@ -23,78 +22,25 @@ const CardInfo = (props: any) => {
             [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
             null
     );
-    const desc = props.card?.fields?.description?.content[0]?.content[0]?.text ?
-                props.card?.fields?.description?.content[0]?.content[0]?.text :
-                "Add a Description wjng;oenfwneof";
-    const [tempDescription, setTempDescription] = useState(desc);
 
     const updateTitle = async (value: string) => {
+        const res = await props.axiosService.updateIssueSummary(value, props.card.id);
+        if (res) {
+            const editedCard = { ...props.card };
+            editedCard.fields.summary = value;
+            setValues(editedCard);
 
-        const editedCard = { ...props.card };
-        editedCard.fields.summary = value;
-        setValues(editedCard);
-
-        const desc = values?.fields?.description?.content[0]?.content[0]?.text || undefined;
-        const data = JSON.stringify({
-            "email": props.email,
-            "url": props.siteUrl,
-            "token": props.token,
-            "summary": value,
-            "description": desc,
-            "id": props.card.id
-        });
-
-        const config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/update-issue',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-
-        try {
-            await axios.request(config);
             ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
         }
-        catch (err) {
-            console.log(err)
-            ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
-        }
-
     }
+
     const updateDesc = async (value: string) => {
-        const editedCard = { ...props.card };
-        editedCard.fields.description = value;
-        setValues(editedCard);
-
-        const data = JSON.stringify({
-            "email": props.email,
-            "url": props.siteUrl,
-            "token": props.token,
-            "summary": values?.fields?.summary || undefined,
-            "description": value,
-            "id": props.card.id
-        });
-
-        const config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/update-issue',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-
-        try {
-            await axios.request(config);
-            await setTempDescription(value);
+        const res = await props.axiosService.updateIssueDescription(value, props.card.id);
+        if (res) {
+            const editedCard: any = { ...props.card };
+            editedCard.fields.description.content[0].content[0].text = value;
+            setValues(editedCard);
             await ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Description Update Successfully!');
-        }
-        catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Card Description Update Failed!', err);
         }
     }
 
@@ -124,66 +70,21 @@ const CardInfo = (props: any) => {
             setDevTimeLog(timeLog);
     }
 
-    const handleChange = async (selectedOption: any) => {
-        console.log(selectedOption)
+    const setIssueAssigner = async (selectedOption: any) => {
         setSelectedOption(selectedOption);
-
-        try {
-            const data = JSON.stringify({
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token,
-                "key": props.card.key,
-                "assignee": selectedOption.value
-            });
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Member Assign Successfully!');
-            else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Member Assign Failed!');
-
-        } catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Member Assign Failed!', err);
-        }
+        const data = await props.axiosService.setIssueAssigner(props.card.key, selectedOption.value);
+        if (data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Member Assign Successfully!');
+        else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Member Assign Failed!');
     };
 
     const getDropdownData = async () => {
-        try {
-            const data = JSON.stringify({
-                "key": props.boardKey,
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token
-            });
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/get-assigner',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            const result = res.data.map((e: { locale: any; accountId: any; displayName: any; }) => {
-                if (e.locale) {
-                    return { value: e.accountId, label: e.displayName }
-                }
-            }).filter(Boolean);
-            setDropdownData(result);
-
-        } catch (err) {
-            console.log(err)
-        }
+        const data = await props.axiosService.getAssigners(props.boardKey);
+        const result = data.map((e: { locale: any; accountId: any; displayName: any; }) => {
+            if (e.locale) {
+                return { value: e.accountId, label: e.displayName }
+            }
+        }).filter(Boolean);
+        setDropdownData(result);
     }
 
     useEffect(() => {
@@ -226,8 +127,16 @@ const CardInfo = (props: any) => {
                         </div>
                         <div className={styles.cardinfo_box_body}>
                             <Editable
-                                defaultValue={tempDescription}
-                                text={tempDescription}
+                                defaultValue={
+                                    props.card?.fields?.description?.content[0]?.content[0]?.text ?
+                                        props.card?.fields?.description?.content[0]?.content[0]?.text :
+                                        "Add a Description"
+                                }
+                                text={
+                                    props.card?.fields?.description?.content[0]?.content[0]?.text ?
+                                        props.card?.fields?.description?.content[0]?.content[0]?.text :
+                                        "Add a Description"
+                                }
                                 placeholder="Enter description"
                                 onSubmit={updateDesc}
                             />
@@ -288,7 +197,7 @@ const CardInfo = (props: any) => {
                                         <div className={styles.cardinfo_box_body}>
                                             <Select
                                                 value={selectedOption}
-                                                onChange={handleChange}
+                                                onChange={setIssueAssigner}
                                                 options={dropdownData}
                                                 // isClearable
                                                 isSearchable

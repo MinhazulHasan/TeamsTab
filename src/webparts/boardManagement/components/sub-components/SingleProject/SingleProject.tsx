@@ -300,28 +300,12 @@ const SingleProject = (props: any) => {
 		tempBoards[index].cards[cardIndex] = card;
 		setBoards(tempBoards);
 	};
-	
-	// Get all the boards and Issues of a Jira Project
-	const getJiraData = useCallback(async () => {
-		try {
-			const data = JSON.stringify({
-				"key": props.boardKey,
-				"email": props.email,
-				"url": props.siteUrl,
-				"token": props.token
-			});
-			const config = {
-				method: 'post',
-				maxBodyLength: Infinity,
-				url: 'https://proxy-skip-app-production.up.railway.app/get-all-issue',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				data: data
-			};
 
-			const res = await axios.request(config);
-			let jiraIssue = res.data?.map((issue: any) => {
+	// Get all the boards and Issues of a Jira Project
+	const getJiraIssues = useCallback(async () => {
+		const data = await props.axiosService.getJiraIssuesByProjectKey(props.boardKey);
+		if (data) {
+			let jiraIssue = data.map((issue: any) => {
 				return { issueId: issue.fields?.status?.id, issueTitle: issue.fields?.status?.name, issue: issue }
 			});
 			const convertedJiraIssue: JiraIssue[] = [];
@@ -339,14 +323,10 @@ const SingleProject = (props: any) => {
 			});
 			setBoards(convertedJiraIssue);
 		}
-		catch (error) {
-			ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
-		}
-
 	}, []);
 
 	useEffect(() => {
-		getJiraData();
+		getJiraIssues();
 	}, [props.boardKey]);
 
 	return ((boards.length === 0) ? <Loader /> :
@@ -365,6 +345,7 @@ const SingleProject = (props: any) => {
 					siteUrl={props.siteUrl}
 					token={props.token}
 					pnpService={props.pnpService}
+					axiosService={props.axiosService}
 				/>
 			))}
 			<div className={styles.app_boards_last}>
