@@ -10,7 +10,7 @@ import "@pnp/sp/items";
 import "@pnp/sp/site-groups/web";
 import "@pnp/sp/site-users/web";
 import "@pnp/sp/site-groups";
-import { ToastMessage } from "../webparts/boardManagement/assets/Toast/toast";
+import { ToastMessage } from "./toast";
 
 class PnpService {
 	public siteUrl: string;

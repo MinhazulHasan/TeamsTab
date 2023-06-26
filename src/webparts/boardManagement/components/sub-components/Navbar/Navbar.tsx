@@ -6,7 +6,7 @@ import * as React from 'react';
 import './Navbar.scss';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { ToastMessage } from '../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 
 const Navbar = (props: any) => {
     const [flag, setFlag] = React.useState(false);
@@ -34,8 +34,6 @@ const Navbar = (props: any) => {
         let offlineData = localStorage.getItem("syncData");
         offlineData = JSON.parse(offlineData);
         console.log("offline daoiujoiujoikujoiphuy", typeof offlineData, offlineData);
-
-       
 
         for (let i = 0; i < offlineData.length; i++) {
             const config = {

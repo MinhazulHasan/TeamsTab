@@ -6,7 +6,7 @@ import * as React from 'react';
 import styles from './Card.module.scss';
 import { CheckSquare, Clock, MoreHorizontal } from 'react-feather';
 import Dropdown from '../Dropdown/Dropdown';
-import CardInfo from './CardInfo/CardInfo';
+import CardInfo from '../CardInfo/CardInfo';
 
 const Card = (props: any) => {
     const [showDropdown, setShowDropdown] = React.useState(false);

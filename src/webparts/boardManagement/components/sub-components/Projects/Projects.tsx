@@ -7,7 +7,7 @@
 import * as React from 'react';
 import './Projects.scss';
 import axios from 'axios';
-import { ToastMessage } from '../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 import Loader from '../../../assets/Loader/Loader';
 // import { Version3Client } from 'jira.js';
 

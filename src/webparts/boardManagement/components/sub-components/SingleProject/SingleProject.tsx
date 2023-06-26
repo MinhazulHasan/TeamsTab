@@ -14,7 +14,7 @@ import { JiraIssue } from './ISingleProject';
 import Board from '../Board/Board';
 import Editable from '../Editable/Editable';
 import Loader from '../../../assets/Loader/Loader';
-import { ToastMessage } from '../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 import Swal from 'sweetalert2';
 import { Version3Client } from 'jira.js';
 

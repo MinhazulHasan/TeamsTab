@@ -5,13 +5,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import styles from './CardInfo.module.scss';
-import Modal from '../../Modal/Modal';
+import Modal from '../Modal/Modal';
 import { ChevronDown, ChevronUp, Clock, Eye, List, MoreHorizontal, Share2, ThumbsUp, Type, Unlock, Watch, X, } from "react-feather";
-import Editable from '../../Editable/Editable';
+import Editable from '../Editable/Editable';
 import Select from 'react-select';
 import * as moment from 'moment';
 import axios from 'axios';
-import { ToastMessage } from '../../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 
 const CardInfo = (props: any) => {
     const [values, setValues] = React.useState({ ...props.card });
@@ -245,6 +245,7 @@ const CardInfo = (props: any) => {
                                 text={devTimeLog ? `Dev Time: ${devTimeLog} hours` : "Enter Developers Time Log (Hours)"}
                                 placeholder="Developers Time Log (Hours)"
                                 onSubmit={setOrUpdateDevTimeLog}
+                                buttonText="Update"
                             />
                         </div>
                     </div>
