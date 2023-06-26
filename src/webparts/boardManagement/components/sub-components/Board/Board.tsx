@@ -8,6 +8,7 @@ import Editable from '../Editable/Editable';
 import Dropdown from '../Dropdown/Dropdown';
 
 const Board = (props: any) => {
+    console.log("issue=",props.board?.issue)
     const [showDropdown, setShowDropdown] = React.useState(false);
     return (
         <div className={styles.board}>

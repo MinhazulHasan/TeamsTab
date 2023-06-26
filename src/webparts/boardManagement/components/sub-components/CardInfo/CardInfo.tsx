@@ -23,6 +23,10 @@ const CardInfo = (props: any) => {
             [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
             null
     );
+    const desc = props.card?.fields?.description?.content[0]?.content[0]?.text ?
+                props.card?.fields?.description?.content[0]?.content[0]?.text :
+                "Add a Description wjng;oenfwneof";
+    const [tempDescription, setTempDescription] = useState(desc);
 
     const updateTitle = async (value: string) => {
 
@@ -30,12 +34,13 @@ const CardInfo = (props: any) => {
         editedCard.fields.summary = value;
         setValues(editedCard);
 
+        const desc = values?.fields?.description?.content[0]?.content[0]?.text || undefined;
         const data = JSON.stringify({
             "email": props.email,
             "url": props.siteUrl,
             "token": props.token,
             "summary": value,
-            "description": props.card.fields.description || "",
+            "description": desc,
             "id": props.card.id
         });
 
@@ -50,12 +55,11 @@ const CardInfo = (props: any) => {
         };
 
         try {
-            const res = await axios.request(config);
-            console.log(res.data)
-            // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
-            // else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Card Title Update Failed!');
+            await axios.request(config);
+            ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
         }
         catch (err) {
+            console.log(err)
             ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
         }
 
@@ -69,11 +73,9 @@ const CardInfo = (props: any) => {
             "email": props.email,
             "url": props.siteUrl,
             "token": props.token,
-            "issueIdOrKey": props.card.key,
-            "fields": {
-                "summary": props.card.fields.summary,
-                "description": value
-            }
+            "summary": values?.fields?.summary || undefined,
+            "description": value,
+            "id": props.card.id
         });
 
         const config = {
@@ -87,13 +89,12 @@ const CardInfo = (props: any) => {
         };
 
         try {
-            const res = await axios.request(config);
-            console.log(res.data)
-            // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
-            // else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Card Title Update Failed!');
+            await axios.request(config);
+            await setTempDescription(value);
+            await ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Description Update Successfully!');
         }
         catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
+            ToastMessage.toastWithConfirmation('error', 'Card Description Update Failed!', err);
         }
     }
 
@@ -211,8 +212,8 @@ const CardInfo = (props: any) => {
                         <div className={styles.cardinfo_box_body}>
                             <Editable
                                 style={{ fontSize: "1.5rem", fontWeight: 600 }}
-                                defaultValue={values.fields.summary}
-                                text={values.fields.summary}
+                                defaultValue={values?.fields?.summary}
+                                text={values?.fields?.summary}
                                 placeholder="Enter Title"
                                 onSubmit={updateTitle}
                             />
@@ -225,8 +226,8 @@ const CardInfo = (props: any) => {
                         </div>
                         <div className={styles.cardinfo_box_body}>
                             <Editable
-                                defaultValue={values.fields.description}
-                                text={values.fields.description || "Add a Description"}
+                                defaultValue={tempDescription}
+                                text={tempDescription}
                                 placeholder="Enter description"
                                 onSubmit={updateDesc}
                             />

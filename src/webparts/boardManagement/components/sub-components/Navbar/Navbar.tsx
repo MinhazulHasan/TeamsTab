@@ -109,8 +109,6 @@ const Navbar = (props: any) => {
         return status;
     }, [window, flag]);
 
-    console.log("NAVBAR CALLING:", syncStatus)
-
 
     return (
         <div className="nav">
