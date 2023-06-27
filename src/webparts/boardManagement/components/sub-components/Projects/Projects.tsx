@@ -6,56 +6,23 @@
 /* eslint-disable react/jsx-no-target-blank */
 import * as React from 'react';
 import './Projects.scss';
-import axios from 'axios';
-import { ToastMessage } from '../../../assets/Toast/toast';
 import Loader from '../../../assets/Loader/Loader';
-// import { Version3Client } from 'jira.js';
 
 const Projects = (props: any) => {
 
     const [projects, setProjects] = React.useState([]);
+    
     // Show single project component
     const viewSingleProjectPage = (key: string) => {
         props.setBoardKey(key);
         props.setPage({ Projects: false, SingleProject: true });
     };
+
     // Get all projects from JIRA
     const getJiraProjects = React.useCallback(async () => {
-        try {
-            // const client = new Version3Client({
-            //     host: props.siteUrl,
-            //     authentication: {
-            //         basic: {
-            //             email: props.email,
-            //             apiToken: props.apiToken,
-            //         },
-            //     },
-            // });
-            // const projects = await client.projects.getAllProjects();
-            // setProjects(projects);
-            const data = JSON.stringify({
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token
-            });
-
-            const config = {
-                method: 'POST',
-                url: 'https://proxy-skip-app-production.up.railway.app/get-all-project',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            if (res.data.length !== 0)  setProjects(res.data);
-            else    ToastMessage.toastWithConfirmation("error", "Projects Not Found", "Please Create a Project in JIRA or Re-Generate your JIRA Token");
-        }
-        catch (error) {
-            ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
-        }
-
+        const data = await props.axiosService.getJiraProjects();
+        if(data)
+            setProjects(data);
     }, []);
 
     React.useEffect(() => {

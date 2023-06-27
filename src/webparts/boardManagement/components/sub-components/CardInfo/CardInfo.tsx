@@ -5,13 +5,12 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import styles from './CardInfo.module.scss';
-import Modal from '../../Modal/Modal';
+import Modal from '../Modal/Modal';
 import { ChevronDown, ChevronUp, Clock, Eye, List, MoreHorizontal, Share2, ThumbsUp, Type, Unlock, Watch, X, } from "react-feather";
-import Editable from '../../Editable/Editable';
+import Editable from '../Editable/Editable';
 import Select from 'react-select';
 import * as moment from 'moment';
-import axios from 'axios';
-import { ToastMessage } from '../../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 
 const CardInfo = (props: any) => {
     const [values, setValues] = React.useState({ ...props.card });
@@ -20,87 +19,33 @@ const CardInfo = (props: any) => {
     const [devTimeLog, setDevTimeLog] = useState(0);
     const [selectedOption, setSelectedOption] = useState(
         props.card.fields.assignee !== null ?
-        [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
-        null
+            [{ value: props.card.fields.assignee, label: props.card.fields.assignee.displayName }] :
+            null
     );
 
     const updateTitle = async (value: string) => {
+        const res = await props.axiosService.updateIssueSummary(value, props.card.id);
+        if (res) {
+            const editedCard = { ...props.card };
+            editedCard.fields.summary = value;
+            setValues(editedCard);
 
-        const editedCard = { ...props.card };
-        editedCard.fields.summary = value;
-        setValues(editedCard);
-
-        const data = JSON.stringify({
-            "email": props.email,
-            "url": props.siteUrl,
-            "token": props.token,
-            "issueIdOrKey": props.card.key,
-            "fields": {
-                "summary": value,
-                "description": ""
-            }
-        });
-
-        const config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-
-        try {
-            const res = await axios.request(config);
-            console.log(res.data)
-            // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
-            // else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Card Title Update Failed!');
+            ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
         }
-        catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
-        }
-
     }
+
     const updateDesc = async (value: string) => {
-        const editedCard = { ...props.card };
-        editedCard.fields.description = value;
-        setValues(editedCard);
-
-        const data = JSON.stringify({
-            "email": props.email,
-            "url": props.siteUrl,
-            "token": props.token,
-            "issueIdOrKey": props.card.key,
-            "fields": {
-                "summary": props.card.fields.summary,
-                "description": value
-            }
-        });
-
-        const config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-
-        try {
-            const res = await axios.request(config);
-            console.log(res.data)
-            // if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Title Update Successfully!');
-            // else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Card Title Update Failed!');
-        }
-        catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Card Title Update Failed!', err);
+        const res = await props.axiosService.updateIssueDescription(value, props.card.id);
+        if (res) {
+            const editedCard: any = { ...props.card };
+            editedCard.fields.description.content[0].content[0].text = value;
+            setValues(editedCard);
+            await ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Card Description Update Successfully!');
         }
     }
 
     const setOrUpdateDevTimeLog = async (value: string) => {
-        if(Number.isNaN(parseFloat(value))) {
+        if (Number.isNaN(parseFloat(value))) {
             ToastMessage.toastWithConfirmation('error', 'Invalid Number', 'Please enter a valid number');
             return;
         }
@@ -111,7 +56,7 @@ const CardInfo = (props: any) => {
             DevTimeLog: parseFloat(value)
         }
         const res = await props.pnpService.setOrUpdateDevTimeLog(jiraIssueObj);
-        if(res) setDevTimeLog(parseFloat(value));
+        if (res) setDevTimeLog(parseFloat(value));
     }
 
     const getDevTimeLog = async () => {
@@ -121,70 +66,25 @@ const CardInfo = (props: any) => {
             IssueID: parseInt(props.card.id)
         }
         const timeLog = await props.pnpService.getDevTimeLog(jiraIssueObj);
-        if(timeLog)
+        if (timeLog)
             setDevTimeLog(timeLog);
     }
 
-    const handleChange = async (selectedOption: any) => {
-        console.log(selectedOption)
+    const setIssueAssigner = async (selectedOption: any) => {
         setSelectedOption(selectedOption);
-
-        try {
-            const data = JSON.stringify({
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token,
-                "key": props.card.key,
-                "assignee": selectedOption.value
-            });
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/set-assigner',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            if (res.data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Member Assign Successfully!');
-            else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Member Assign Failed!');
-
-        } catch (err) {
-            ToastMessage.toastWithConfirmation('error', 'Member Assign Failed!', err);
-        }
+        const data = await props.axiosService.setIssueAssigner(props.card.key, selectedOption.value);
+        if (data) ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'Member Assign Successfully!');
+        else ToastMessage.toastWithConfirmation('error', 'Sorry...', 'Member Assign Failed!');
     };
 
     const getDropdownData = async () => {
-        try {
-            const data = JSON.stringify({
-                "key": props.boardKey,
-                "email": props.email,
-                "url": props.siteUrl,
-                "token": props.token
-            });
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/get-assigner',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: data
-            };
-
-            const res = await axios.request(config);
-            const result = res.data.map((e: { locale: any; accountId: any; displayName: any; }) => {
-                if (e.locale) {
-                    return { value: e.accountId, label: e.displayName }
-                }
-            }).filter(Boolean);
-            setDropdownData(result);
-
-        } catch (err) {
-            console.log(err)
-        }
+        const data = await props.axiosService.getAssigners(props.boardKey);
+        const result = data.map((e: { locale: any; accountId: any; displayName: any; }) => {
+            if (e.locale) {
+                return { value: e.accountId, label: e.displayName }
+            }
+        }).filter(Boolean);
+        setDropdownData(result);
     }
 
     useEffect(() => {
@@ -213,8 +113,8 @@ const CardInfo = (props: any) => {
                         <div className={styles.cardinfo_box_body}>
                             <Editable
                                 style={{ fontSize: "1.5rem", fontWeight: 600 }}
-                                defaultValue={values.fields.summary}
-                                text={values.fields.summary}
+                                defaultValue={values?.fields?.summary}
+                                text={values?.fields?.summary}
                                 placeholder="Enter Title"
                                 onSubmit={updateTitle}
                             />
@@ -227,8 +127,16 @@ const CardInfo = (props: any) => {
                         </div>
                         <div className={styles.cardinfo_box_body}>
                             <Editable
-                                defaultValue={values.fields.description}
-                                text={values.fields.description || "Add a Description"}
+                                defaultValue={
+                                    props.card?.fields?.description?.content[0]?.content[0]?.text ?
+                                        props.card?.fields?.description?.content[0]?.content[0]?.text :
+                                        "Add a Description"
+                                }
+                                text={
+                                    props.card?.fields?.description?.content[0]?.content[0]?.text ?
+                                        props.card?.fields?.description?.content[0]?.content[0]?.text :
+                                        "Add a Description"
+                                }
                                 placeholder="Enter description"
                                 onSubmit={updateDesc}
                             />
@@ -245,6 +153,7 @@ const CardInfo = (props: any) => {
                                 text={devTimeLog ? `Dev Time: ${devTimeLog} hours` : "Enter Developers Time Log (Hours)"}
                                 placeholder="Developers Time Log (Hours)"
                                 onSubmit={setOrUpdateDevTimeLog}
+                                buttonText="Update"
                             />
                         </div>
                     </div>
@@ -257,8 +166,8 @@ const CardInfo = (props: any) => {
                             <p>
                                 {
                                     props.card?.fields?.timeestimate ?
-                                    `Assign Time: ${props.card.fields.timeestimate} hours` :
-                                    "Assign Time: Time hasn't been allocated yet"
+                                        `Assign Time: ${props.card.fields.timeestimate} hours` :
+                                        "Assign Time: Time hasn't been allocated yet"
                                 }
                             </p>
                         </div>
@@ -288,7 +197,7 @@ const CardInfo = (props: any) => {
                                         <div className={styles.cardinfo_box_body}>
                                             <Select
                                                 value={selectedOption}
-                                                onChange={handleChange}
+                                                onChange={setIssueAssigner}
                                                 options={dropdownData}
                                                 // isClearable
                                                 isSearchable

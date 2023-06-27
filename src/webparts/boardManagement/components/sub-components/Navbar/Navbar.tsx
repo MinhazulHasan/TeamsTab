@@ -6,7 +6,7 @@ import * as React from 'react';
 import './Navbar.scss';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { ToastMessage } from '../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 
 const Navbar = (props: any) => {
     const [flag, setFlag] = React.useState(false);
@@ -31,54 +31,83 @@ const Navbar = (props: any) => {
     }
 
     const handleSyncData = async () => {
-        let offlineData = localStorage.getItem("syncData");
-        offlineData = JSON.parse(offlineData);
-        console.log("offline daoiujoiujoikujoiphuy", typeof offlineData, offlineData);
+        let issueCreateData = localStorage.getItem("issueCreateData");
+        issueCreateData = JSON.parse(issueCreateData);
 
-       
+        let issueTransferData = localStorage.getItem("issueTransferData");
+        issueTransferData = JSON.parse(issueTransferData);
 
-        for (let i = 0; i < offlineData.length; i++) {
-            const config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'https://proxy-skip-app-production.up.railway.app/create-issue',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: offlineData[i]
-            };
+        if (issueCreateData) {
+            setFlag(false);
+            for (let i = 0; i < issueCreateData.length; i++) {
+                const config = {
+                    method: 'post',
+                    maxBodyLength: Infinity,
+                    url: 'https://proxy-skip-app-production.up.railway.app/create-issue',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: issueCreateData[i]
+                };
 
-            const response = await axios.request(config);
+                const response = await axios.request(config);
 
-            if((i === (offlineData.length-1)) && response.status === (201 || 200)){
-                setFlag(true);
-                localStorage.removeItem("syncData");
-                ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'All Issue has been Synced!');
+                if ((i === (issueCreateData.length - 1)) && response.status === (201 || 200)) {
+                    setFlag(true);
+                    localStorage.removeItem("issueCreateData");
+                }
             }
         }
+
+        if (issueTransferData) {
+            setFlag(false);
+            for (let i = 0; i < issueTransferData.length; i++) {
+                const config = {
+                    method: 'post',
+                    maxBodyLength: Infinity,
+                    url: 'https://proxy-skip-app-production.up.railway.app/change-issue-status',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: issueTransferData[i]
+                };
+
+                const response = await axios.request(config);
+
+                if ((i === (issueTransferData.length - 1)) && response.status === (201 || 200)) {
+                    setFlag(true);
+                    localStorage.removeItem("issueTransferData");
+                }
+            }
+        }
+
+        if (setFlag)
+            ToastMessage.toastWithoutConfirmation('success', 'Congrats...', 'All Issue has been Synced!');
+        else
+            ToastMessage.toastWithoutConfirmation('error', 'Action Faield...', 'Some Issue has not been Synced!');
     }
 
     const syncStatus = React.useMemo(() => {
         let status = false;
-        let offlineData = localStorage.getItem("syncData");
-        offlineData = JSON.parse(offlineData);
-        console.log(offlineData);
+        let issueCreateData = localStorage.getItem("issueCreateData");
+        issueCreateData = JSON.parse(issueCreateData);
 
-        if (offlineData && offlineData.length > 0) {
+        let issueTransferData = localStorage.getItem("issueTransferData");
+        issueTransferData = JSON.parse(issueTransferData);
+
+        if ((issueCreateData && issueCreateData.length > 0) || (issueTransferData && issueTransferData.length > 0)) {
             status = true;
         }
         else {
             status = false;
         }
 
-        if(flag){
+        if (flag) {
             status = true;
         }
 
         return status;
     }, [window, flag]);
-
-    console.log("NAVBAR CALLING:", syncStatus)
 
 
     return (
@@ -100,7 +129,7 @@ const Navbar = (props: any) => {
             <div className="nav-links">
                 <a><span>{props.currentUser}</span></a>
                 {
-                    syncStatus  === true && !flag ? <a><span onClick={handleSyncData}>{'Sync Issues'}</span></a> : <></>
+                    syncStatus === true && !flag ? <a><span onClick={handleSyncData}>{'Sync Issues'}</span></a> : <></>
                 }
                 <a><span onClick={() => props.setPage({ Projects: true, SingleProject: false })}>Projects</span></a>
                 <a><span onClick={handleLogOut}>LogOut</span></a>

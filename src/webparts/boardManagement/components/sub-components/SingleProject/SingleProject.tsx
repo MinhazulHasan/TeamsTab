@@ -14,7 +14,7 @@ import { JiraIssue } from './ISingleProject';
 import Board from '../Board/Board';
 import Editable from '../Editable/Editable';
 import Loader from '../../../assets/Loader/Loader';
-import { ToastMessage } from '../../../assets/Toast/toast';
+import { ToastMessage } from '../../../../../services/toast';
 import Swal from 'sweetalert2';
 import { Version3Client } from 'jira.js';
 
@@ -31,6 +31,7 @@ const SingleProject = (props: any) => {
 			}
 		}
 	});
+
 	// Add Board (Row) in a Particular Jira Project
 	const addboardHandler = (name: string) => {
 		const tempBoards: any = [...boards];
@@ -41,6 +42,7 @@ const SingleProject = (props: any) => {
 		});
 		setBoards(tempBoards);
 	};
+
 	// Remove Board from a Particular Jira Project
 	const removeBoard = (id: string) => {
 		Swal.fire({
@@ -62,10 +64,9 @@ const SingleProject = (props: any) => {
 			}
 		});
 	};
+
 	// Add a Card (Issue) in a Particular Jira Board
 	const addCardHandler = async (issueTitle: string, title: string) => {
-		// console.log('Initially ' + (window.navigator.onLine ? 'on' : 'off') + 'line');
-
 		let data = JSON.stringify({
 			"email": props.email,
 			"url": props.siteUrl,
@@ -85,7 +86,7 @@ const SingleProject = (props: any) => {
 
 		if (!window.navigator.onLine) {
 			let temp: any = [];
-			let offlineData = localStorage.getItem("syncData");
+			let offlineData = localStorage.getItem("issueCreateData");
 			offlineData = JSON.parse(offlineData);
 			console.log("Offline Data = ", offlineData)
 			if (offlineData && offlineData.length > 0) {
@@ -95,7 +96,7 @@ const SingleProject = (props: any) => {
 			else {
 				temp.push(data);
 			}
-			localStorage.setItem("syncData", JSON.stringify(temp));
+			localStorage.setItem("issueCreateData", JSON.stringify(temp));
 
 			const newIssue = {
 				id: '10091',
@@ -153,6 +154,7 @@ const SingleProject = (props: any) => {
 			ToastMessage.toastWithConfirmation('error', 'Action Faield...', error);
 		}
 	};
+
 	// Remove a Card (Issue) from a Particular Jira Board
 	const removeCard = async (bid: string, cid: string, cardKey: any) => {
 		const index = boards.findIndex((item: { issueId: string; }) => item.issueId === bid);
@@ -210,12 +212,14 @@ const SingleProject = (props: any) => {
 			}
 		})
 	};
+
 	// Drag a Card (Issue) from one Board to Another Board and set the Target Card
 	const dragEntered = (bId: string, card: { id: string, fields: { status: { name: string } } }) => {
 		if (targetCard.card.id === card.id) return;
 		setTargetCard({ bId, card });
 		console.log("Drag Enter:\n", { bId, card })
 	}
+
 	// Drop the Card (Issue) from one Board to Another Board and change the status of the Card (Issue)
 	const dragEnded = async (bId: string, card: { id: string, key: string }) => {
 		const data = JSON.stringify({
@@ -225,49 +229,66 @@ const SingleProject = (props: any) => {
 			"key": card.id,
 			"status": targetCard?.card?.fields?.status?.name,
 		});
-		const config = {
-			method: 'post',
-			maxBodyLength: Infinity,
-			url: 'https://proxy-skip-app-production.up.railway.app/change-issue-status',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			data: data
-		};
 
-		try {
-			const res = await axios.request(config);
-			console.log(res.data)
-
-			console.log("Drag End:\n", { bId, card })
-			let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
-
-			s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
-			if (s_boardIndex < 0) return;
-
-			s_cardIndex = boards[s_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === card.id);
-			if (s_cardIndex < 0) return;
-
-			t_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === targetCard.bId);
-			if (t_boardIndex < 0) return;
-
-			t_cardIndex = boards[t_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === targetCard.card.id);
-			if (t_cardIndex < 0) return;
-
-			const tempBoards = [...boards];
-			const sourceCard = tempBoards[s_boardIndex].issue[s_cardIndex];
-			tempBoards[s_boardIndex].issue.splice(s_cardIndex, 1);
-			tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
-			setBoards(tempBoards);
-
-			setTargetCard({ bId: "", card: { id: "", fields: { status: { name: "" } } } });
-			ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Moved successfully!');
+		if (!window.navigator.onLine) {
+			let temp: any = [];
+			let offlineData = localStorage.getItem("issueTransferData");
+			offlineData = JSON.parse(offlineData);
+			console.log("Offline issueTransferData = ", offlineData)
+			if (offlineData && offlineData.length > 0) {
+				temp = offlineData;
+				temp.push(data);
+			}
+			else {
+				temp.push(data);
+			}
+			localStorage.setItem("issueTransferData", JSON.stringify(temp));
+			ToastMessage.toastWithConfirmation('info', 'Card Transfered in Local Cache', 'Wait for internet connection to update on Jira server');
 		}
-		catch (error) {
-			ToastMessage.toastWithConfirmation('error', 'Action faield...', error);
+		else {
+			try {
+				const config = {
+					method: 'post',
+					maxBodyLength: Infinity,
+					url: 'https://proxy-skip-app-production.up.railway.app/change-issue-status',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					data: data
+				};
+
+				const res = await axios.request(config);
+				console.log(res.data)
+				ToastMessage.toastWithoutConfirmation('success', 'Success...', 'Card Moved successfully!');
+			}
+			catch (error) {
+				ToastMessage.toastWithConfirmation('error', 'Action faield...', error);
+				return;
+			}
 		}
 
+		let s_boardIndex, s_cardIndex, t_boardIndex, t_cardIndex;
+
+		s_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === bId);
+		if (s_boardIndex < 0) return;
+
+		s_cardIndex = boards[s_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === card.id);
+		if (s_cardIndex < 0) return;
+
+		t_boardIndex = boards.findIndex((item: { issueId: string; }) => item.issueId === targetCard.bId);
+		if (t_boardIndex < 0) return;
+
+		t_cardIndex = boards[t_boardIndex]?.issue?.findIndex((item: { id: string; }) => item.id === targetCard.card.id);
+		if (t_cardIndex < 0) return;
+
+		const tempBoards = [...boards];
+		const sourceCard = tempBoards[s_boardIndex].issue[s_cardIndex];
+		tempBoards[s_boardIndex].issue.splice(s_cardIndex, 1);
+		tempBoards[t_boardIndex].issue.splice(t_cardIndex, 0, sourceCard);
+		setBoards(tempBoards);
+		setTargetCard({ bId: "", card: { id: "", fields: { status: { name: "" } } } });
 	}
+
 	// Update several features of a Card (Issue)
 	const updateCard = (bId: string, cId: string, card: any) => {
 		const index = boards.findIndex((item: { id: string; }) => item.id === bId);
@@ -279,27 +300,12 @@ const SingleProject = (props: any) => {
 		tempBoards[index].cards[cardIndex] = card;
 		setBoards(tempBoards);
 	};
-	// Get all the boards and Issues of a Jira Project
-	const getJiraData = useCallback(async () => {
-		try {
-			const data = JSON.stringify({
-				"key": props.boardKey,
-				"email": props.email,
-				"url": props.siteUrl,
-				"token": props.token
-			});
-			const config = {
-				method: 'post',
-				maxBodyLength: Infinity,
-				url: 'https://proxy-skip-app-production.up.railway.app/get-all-issue',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				data: data
-			};
 
-			const res = await axios.request(config);
-			let jiraIssue = res.data?.map((issue: any) => {
+	// Get all the boards and Issues of a Jira Project
+	const getJiraIssues = useCallback(async () => {
+		const data = await props.axiosService.getJiraIssuesByProjectKey(props.boardKey);
+		if (data) {
+			let jiraIssue = data.map((issue: any) => {
 				return { issueId: issue.fields?.status?.id, issueTitle: issue.fields?.status?.name, issue: issue }
 			});
 			const convertedJiraIssue: JiraIssue[] = [];
@@ -317,14 +323,10 @@ const SingleProject = (props: any) => {
 			});
 			setBoards(convertedJiraIssue);
 		}
-		catch (error) {
-			ToastMessage.toastWithConfirmation("error", "Something went wrong", error);
-		}
-
 	}, []);
 
 	useEffect(() => {
-		getJiraData();
+		getJiraIssues();
 	}, [props.boardKey]);
 
 	return ((boards.length === 0) ? <Loader /> :
@@ -343,6 +345,7 @@ const SingleProject = (props: any) => {
 					siteUrl={props.siteUrl}
 					token={props.token}
 					pnpService={props.pnpService}
+					axiosService={props.axiosService}
 				/>
 			))}
 			<div className={styles.app_boards_last}>

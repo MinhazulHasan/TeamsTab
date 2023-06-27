@@ -8,6 +8,7 @@ import Editable from '../Editable/Editable';
 import Dropdown from '../Dropdown/Dropdown';
 
 const Board = (props: any) => {
+    console.log("issue=",props.board?.issue)
     const [showDropdown, setShowDropdown] = React.useState(false);
     return (
         <div className={styles.board}>
@@ -49,6 +50,7 @@ const Board = (props: any) => {
                         siteUrl={props.siteUrl}
                         token={props.token}
                         pnpService={props.pnpService}
+                        axiosService={props.axiosService}
                     />
                 ))}
                 <Editable
