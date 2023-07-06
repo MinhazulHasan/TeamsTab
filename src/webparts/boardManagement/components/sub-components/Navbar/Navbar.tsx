@@ -21,9 +21,7 @@ const Navbar = (props: any) => {
             confirmButtonText: "Delete",
         }).then(result => {
             if (result.isConfirmed) {
-                localStorage.removeItem("email");
-                localStorage.removeItem("siteUrl");
-                localStorage.removeItem("token");
+                localStorage.clear();
                 props.setHasCredential(false);
             }
         });
